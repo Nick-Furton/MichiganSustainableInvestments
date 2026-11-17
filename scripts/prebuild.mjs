@@ -17,7 +17,7 @@ const base = (process.env.PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
 const key = process.env.PUBLIC_SUPABASE_ANON_KEY || '';
 if (process.env.SAMPLE_DATA === '1' || !base || !key) process.exit(0);
 
-const res = await fetch(`${base}/rest/v1/public_profiles?select=profile_id,headshot_path`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+const res = await fetch(`${base}/rest/v1/public_profiles?select=profile_id,headshot_path`, { headers: key.startsWith('eyJ') ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key } });
 if (!res.ok) { console.error(`prebuild: public_profiles returned HTTP ${res.status}`); process.exit(1); }
 const rows = await res.json();
 const manifest = {};

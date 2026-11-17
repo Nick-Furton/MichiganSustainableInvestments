@@ -50,7 +50,7 @@ async function load(): Promise<MembersData> {
   if (!base || !key) return { source: 'none', profiles: [], placements: [] };
 
   const get = async (view: string) => {
-    const res = await fetch(`${base}/rest/v1/${view}?select=*`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+    const res = await fetch(`${base}/rest/v1/${view}?select=*`, { headers: key.startsWith('eyJ') ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key } });
     // Fail loudly: a broken fetch must stop the build so the last good site stays live.
     if (!res.ok) throw new Error(`Supabase view ${view} returned HTTP ${res.status}`);
     return (await res.json()) as any[];
