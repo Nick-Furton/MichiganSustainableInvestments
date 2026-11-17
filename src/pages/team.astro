@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Person from '../components/Person.astro';
+import { url, abs } from '../lib/url';
+import { club } from '../data/club';
+import { loadMembers } from '../lib/members';
+const m = await loadMembers();
+const crumbs = [{ name: 'Team', path: 'team/' }];
+const board = m.profiles.filter((p) => p.board_title);
+const rest = m.profiles.filter((p) => !p.board_title);
+const people = board.map((p) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: p.full_name,
+  jobTitle: p.board_title,
+  memberOf: { '@type': 'Organization', name: club.name, url: abs('') },
+  ...(p.linkedin_url ? { sameAs: [p.linkedin_url] } : {}),
+}));
+---
+<Base
+  path="team/"
+  crumbs={crumbs}
+  noindex={m.profiles.length === 0}
+  jsonLd={people}
+  title="Team | Michigan Sustainable Investments"
+  description="The executive board and members of Michigan Sustainable Investments (MSI) at the University of Michigan."
+>
+  <PageHead title="Team" lead="MSI is run by its executive board. Members write their own profiles, and the board approves each one before it appears here." crumbs={crumbs} />
+  <section class="section-tight">
+    <div class="wrap">
+      {m.profiles.length === 0 && (
+        <div class="empty">
+          <p>Profiles for the current board are being added. Members can sign in to add theirs.</p>
+          <a class="arrow-link" href={url('members/')}>Member sign-in →</a>
+        </div>
+      )}
+      {board.length > 0 && (
+        <>
+          <h2 style="margin-bottom:28px">Executive board</h2>
+          <div class="grid-3">{board.map((p) => <Person p={p} />)}</div>
+        </>
+      )}
+      {rest.length > 0 && (
+        <>
+          <h2 style="margin:64px 0 28px">Members</h2>
+          <div class="grid-4">{rest.map((p) => <Person p={p} small />)}</div>
+        </>
+      )}
+    </div>
+  </section>
+</Base>

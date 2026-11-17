@@ -1,0 +1,37 @@
+---
+import Logo from './Logo.astro';
+import { url } from '../lib/url';
+import { getNav } from '../lib/nav';
+interface Props { current: string }
+const { current } = Astro.props;
+const nav = await getNav();
+---
+<header class="site-header">
+  <div class="wrap header-inner">
+    <Logo />
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span class="bars"></span></button>
+    <nav class="nav" id="site-nav" aria-label="Main">
+      <ul class="nav-list">
+        {nav.map((i) => <li><a href={url(i.path)} aria-current={current === i.path ? 'page' : undefined}>{i.label}</a></li>)}
+      </ul>
+      <a class="btn btn-outline btn-sm nav-cta" href={url('members/')}>Member sign-in</a>
+      <a class="btn btn-dark btn-sm nav-cta" href={url('join/')}>Apply</a>
+    </nav>
+  </div>
+</header>
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.nav-toggle');
+  const nav = document.getElementById('site-nav');
+  if (btn && nav) {
+    const set = (open: boolean) => { nav.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); };
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') { set(false); btn.focus(); }
+    });
+    nav.addEventListener('focusout', (e) => {
+      const next = (e as FocusEvent).relatedTarget as Node | null;
+      if (next && !nav.contains(next) && next !== btn) set(false);
+    });
+    window.matchMedia('(min-width: 1321px)').addEventListener('change', () => set(false));
+  }
+</script>

@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PortalStates from '../../components/PortalStates.astro';
+---
+<Base
+  path="members/admin/"
+  crumbs={[{ name: 'Member sign-in', path: 'members/' }, { name: 'Board admin', path: 'members/admin/' }]}
+  noindex
+  title="Board admin | Michigan Sustainable Investments"
+  description="Board tools for Michigan Sustainable Investments (MSI): manage the roster, review profiles, set board titles and export data."
+>
+  <PageHead title="Board admin" />
+  <section class="section-tight portal-section">
+    <div class="wrap admin-wrap">
+      <div id="msg" class="notice" role="alert" hidden></div>
+      <PortalStates />
+      <div data-state="forbidden" hidden><p class="notice error">This page is for board administrators.</p></div>
+      <div data-state="ready" hidden>
+        <div class="tabs" role="tablist" aria-label="Board admin">
+          <button class="tab" role="tab" id="tab-roster" aria-controls="panel-roster" aria-selected="true" type="button">Roster</button>
+          <button class="tab" role="tab" id="tab-review" aria-controls="panel-review" aria-selected="false" tabindex="-1" type="button">Review</button>
+          <button class="tab" role="tab" id="tab-board" aria-controls="panel-board" aria-selected="false" tabindex="-1" type="button">Board titles</button>
+          <button class="tab" role="tab" id="tab-export" aria-controls="panel-export" aria-selected="false" tabindex="-1" type="button">Export</button>
+        </div>
+        <section id="panel-roster" role="tabpanel" aria-labelledby="tab-roster">
+          <form class="stack" id="roster-form">
+            <div class="field"><label for="roster-input">Add @umich.edu emails</label><textarea id="roster-input" placeholder="one per line, or paste a list"></textarea><span class="hint">Separate emails with lines, commas or spaces.</span></div>
+            <p><button class="btn btn-dark" type="submit">Add to roster</button></p>
+          </form>
+          <table class="table"><thead><tr><th scope="col">Email</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="roster-list"></tbody></table>
+        </section>
+        <section id="panel-review" role="tabpanel" aria-labelledby="tab-review" hidden><div id="review-list"></div></section>
+        <section id="panel-board" role="tabpanel" aria-labelledby="tab-board" hidden>
+          <table class="table"><thead><tr><th scope="col">Person</th><th scope="col">Title</th><th scope="col">Order</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="board-list"></tbody></table>
+        </section>
+        <section id="panel-export" role="tabpanel" aria-labelledby="tab-export" hidden>
+          <div class="btn-row">
+            <button class="btn btn-dark" type="button" id="export-profiles">Profiles (CSV)</button>
+            <button class="btn btn-outline" type="button" id="export-placements">Placements (CSV)</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+  <script>import '../../scripts/portal/admin';</script>
+</Base>
+<style is:global>
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>

@@ -1,0 +1,34 @@
+---
+import Logo from './Logo.astro';
+import { url } from '../lib/url';
+import { getNav } from '../lib/nav';
+import { club } from '../data/club';
+const nav = (await getNav()).filter((i) => i.path !== '');
+const links = [...nav, { label: 'Résumé and LinkedIn guide', path: 'members/resume-guide/' }, { label: 'Privacy', path: 'privacy/' }];
+const socials = [
+  { label: 'LinkedIn', href: club.social.linkedin },
+  { label: 'Instagram', href: club.social.instagram },
+  { label: 'X', href: club.social.x },
+].filter((s) => s.href);
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <Logo light />
+      <nav aria-label="Footer">
+        <ul class="footer-nav">
+          {links.map((l) => <li><a href={url(l.path)}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+      {socials.length > 0 && (
+        <ul class="socials">
+          {socials.map((s) => <li><a href={s.href} rel="noopener me">{s.label}</a></li>)}
+        </ul>
+      )}
+    </div>
+    <div class="footer-bottom">
+      <p>Michigan Sustainable Investments is a student organization at the University of Michigan. It is not an official unit of the University and does not speak for it. Nothing on this site is investment advice.</p>
+      <p>{`Founded in ${club.founded} as the ${club.formerName}.`}</p>
+    </div>
+  </div>
+</footer>

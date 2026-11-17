@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PortalStates from '../../components/PortalStates.astro';
+import { url } from '../../lib/url';
+---
+<Base
+  path="members/"
+  crumbs={[{ name: 'Member sign-in', path: 'members/' }]}
+  noindex
+  title="Member sign-in | Michigan Sustainable Investments"
+  description="Sign in to Michigan Sustainable Investments (MSI) with your University of Michigan Google account to create or update your member profile."
+>
+  <PageHead title="Member sign-in" lead="Sign in with your University of Michigan Google account to create or update your profile." />
+  <section class="section-tight portal-section">
+    <div class="wrap portal">
+      <div id="msg" class="notice" role="alert" hidden></div>
+      <PortalStates signInHere />
+      <div data-state="ready" hidden>
+        <div class="btn-row">
+          <a class="btn btn-dark" href={url('members/profile/')}>Your profile</a>
+          <a class="btn btn-outline" id="link-admin" href={url('members/admin/')} hidden>Board admin</a>
+          <button class="btn btn-outline" type="button" id="btn-signout">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>import '../../scripts/portal/signin';</script>
+</Base>

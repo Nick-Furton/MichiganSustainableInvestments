@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { club } from '../data/club';
+const crumbs = [{ name: 'About', path: 'about/' }];
+---
+<Base
+  path="about/"
+  crumbs={crumbs}
+  title="About | Michigan Sustainable Investments"
+  description="Michigan Sustainable Investments (MSI) was founded in 2019 as the Michigan Impact Investing Symposium. History, mission and key facts about the club."
+>
+  <PageHead title="About Michigan Sustainable Investments" lead="Michigan Sustainable Investments (MSI) is the sustainable investing club at the University of Michigan. It was founded in 2019 and is run entirely by students." crumbs={crumbs} />
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="prose">
+      <h2>What we do</h2>
+      <p>MSI teaches undergraduates how capital is allocated when return and impact both count. Members study public equities, green bonds, venture capital, microfinance and clean-energy finance. They hear directly from people who invest for a living.</p>
+
+      <h2>Mission</h2>
+      <p>To train Michigan students to invest for financial return and for environmental and social impact.</p>
+
+      <h2>History</h2>
+      <ol class="timeline">
+        <li><strong>2019</strong>Students found the Michigan Impact Investing Symposium. The first symposium is held on April 13, 2019, in Ann Arbor.</li>
+        <li><strong>2021 to 2023</strong>The symposium returns each year with speakers from investment firms, law firms and companies.</li>
+        <li><strong>April 2024</strong>The fifth annual symposium is held at the Ross School of Business.</li>
+        <li><strong>2024</strong>The club takes the name Michigan Sustainable Investments and expands from one annual event to a year-round program.</li>
+      </ol>
+
+      <h2>At a glance</h2>
+      <dl class="dl">
+        <dt>Name</dt><dd>{`${club.name} (${club.shortName})`}</dd>
+        <dt>Founded</dt><dd>{club.founded}</dd>
+        <dt>Formerly</dt><dd>{`${club.formerName} (${club.formerShortName})`}</dd>
+        <dt>Type</dt><dd>Student organization at the University of Michigan, Ann Arbor</dd>
+        <dt>Focus</dt><dd>Sustainable and impact investing</dd>
+        <dt>Membership</dt><dd>By application</dd>
+        {club.dues && <><dt>Dues</dt><dd>{club.dues}</dd></>}
+      </dl>
+
+      <h2>What "sustainable investing" means here</h2>
+      <p>Sustainable investing weighs environmental and social outcomes alongside financial return. Impact investing goes a step further and targets a measurable outcome. MSI covers both.</p>
+    </div>
+    </div>
+  </section>
+</Base>

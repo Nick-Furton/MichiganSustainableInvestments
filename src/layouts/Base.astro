@@ -1,0 +1,93 @@
+---
+import '../styles/global.css';
+import fontUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { url, abs } from '../lib/url';
+import { club } from '../data/club';
+import { isSample } from '../lib/members';
+import { searchVisible } from '../lib/visibility';
+
+interface Crumb { name: string; path: string }
+interface Props {
+  title: string;
+  description: string;
+  path: string;            // page path without leading slash, e.g. 'about/' ('' for home)
+  noindex?: boolean;
+  crumbs?: Crumb[];        // inner pages: trail after Home (the page itself last)
+  jsonLd?: object[];       // extra structured data
+  bodyClass?: string;
+}
+const { title, description, path, noindex = false, crumbs, jsonLd = [], bodyClass = '' } = Astro.props;
+const canonical = abs(path);
+const ogImage = abs('og.png');
+const sample = isSample();
+// Members-area pages are always hidden from search; every page is hidden during the soft launch.
+const hideFromSearch = noindex || !searchVisible();
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: club.name,
+  alternateName: club.shortName,
+  url: abs(''),
+  logo: abs('logo.png'),
+  description: club.descriptor,
+  foundingDate: String(club.founded),
+  ...(Object.values(club.social).some(Boolean) ? { sameAs: Object.values(club.social).filter(Boolean) } : {}),
+};
+const website = { '@context': 'https://schema.org', '@type': 'WebSite', name: club.name, url: abs('') };
+const breadcrumb = crumbs && crumbs.length ? {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [{ name: 'Home', path: '' }, ...crumbs].map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: abs(c.path) })),
+} : null;
+const graphs = [...(path === '' ? [org, website] : []), ...(breadcrumb ? [breadcrumb] : []), ...jsonLd];
+const ld = (o: object) => JSON.stringify(o).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {hideFromSearch && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#0b1f3a" />
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={url('apple-touch-icon.png')} />
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={club.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Michigan Sustainable Investments, the sustainable investing club at the University of Michigan." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <script is:inline>document.documentElement.classList.add('js')</script>
+    {graphs.map((g) => <script type="application/ld+json" set:html={ld(g)} />)}
+  </head>
+  <body class={bodyClass}>
+    {sample && <div class="preview-banner" role="status">Preview data — not real members</div>}
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <Header current={path} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      const els = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+        els.forEach((el) => io.observe(el));
+      } else els.forEach((el) => el.classList.add('in'));
+    </script>
+  </body>
+</html>

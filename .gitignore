@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.test-dist/
+.astro/
+_preview/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+public/headshots/
+.cache/

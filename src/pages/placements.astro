@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PlacementList from '../components/PlacementList.astro';
+import { loadMembers } from '../lib/members';
+const m = await loadMembers();
+const crumbs = [{ name: 'Placements', path: 'placements/' }];
+const years = [...new Set(m.placements.map((p) => p.year))].sort((a, b) => b - a);
+const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+---
+<Base
+  path="placements/"
+  crumbs={crumbs}
+  noindex={m.placements.length === 0}
+  title="Placements | Michigan Sustainable Investments"
+  description="Internship and full-time offers accepted by members of Michigan Sustainable Investments (MSI), self-reported and listed by year."
+>
+  <PageHead title="Placements" lead="Internship and full-time offers accepted by MSI members. Members report their own placements, and the board approves each entry before it is listed." crumbs={crumbs} />
+  <section class="section-tight">
+    <div class="wrap prose-wide">
+      {m.placements.length === 0 ? (
+        <div class="empty"><p>MSI publishes placements as members report them. None have been approved for publication yet.</p></div>
+      ) : (
+        <>
+          {years.map((y) => (
+            <div class="year-group">
+              <h2>{y}</h2>
+              <PlacementList items={m.placements.filter((p) => p.year === y)} />
+            </div>
+          ))}
+          <p class="small">{`Updated ${updated}. Firm names identify employers only and do not imply sponsorship or endorsement.`}</p>
+        </>
+      )}
+    </div>
+  </section>
+</Base>

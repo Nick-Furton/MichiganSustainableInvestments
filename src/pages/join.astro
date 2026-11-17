@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { club, formatDate, numberWord } from '../data/club';
+const crumbs = [{ name: 'Join', path: 'join/' }];
+const a = club.application;
+const closes = formatDate(a.closes);
+const opens = formatDate(a.opens);
+let status = 'The next application cycle has not been announced. Dates will be posted here.';
+let showApply = false;
+if (a.state === 'open' && closes) { status = `Applications are open until ${closes}.`; showApply = !!a.applyUrl; }
+else if (a.state === 'scheduled' && opens) status = `Applications open ${opens}.`;
+const sym = club.symposium;
+---
+<Base
+  path="join/"
+  crumbs={crumbs}
+  title="Join | Michigan Sustainable Investments"
+  description="How to join Michigan Sustainable Investments (MSI) at the University of Michigan. Membership is by application. Dates, dues and common questions."
+>
+  <PageHead title="Join MSI" lead="Membership is by application." crumbs={crumbs} />
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="status-block">
+        <p>{status}</p>
+        {showApply && <a class="btn btn-dark" href={a.applyUrl}>Apply now</a>}
+      </div>
+    </div>
+  </section>
+  <section class="section-tight">
+    <div class="wrap prose">
+      <h2>Common questions</h2>
+      <h3>What is Michigan Sustainable Investments?</h3>
+      <p>{`MSI is the student-run sustainable investing club at the University of Michigan, founded in ${club.founded}.`}</p>
+      <h3>Is MSI part of the University of Michigan?</h3>
+      <p>MSI is a student organization at the University of Michigan. It is run by students and is not an official unit of the University.</p>
+      <h3>What was the Michigan Impact Investing Symposium?</h3>
+      <p>{`It is the name the club was founded under in ${club.founded}. The club became Michigan Sustainable Investments in ${club.renamedYear}. The symposium was held ${numberWord(sym.count)} times between ${sym.firstYear} and ${sym.lastYear}.`}</p>
+      {club.dues && <><h3>How much are dues?</h3><p>{`${club.dues}.`}</p></>}
+      <h3>How do I apply?</h3>
+      <p>Through the application posted on this page when a cycle opens.</p>
+      <h3>How do members get listed on the Team and Placements pages?</h3>
+      <p>Members sign in with their University of Michigan account, fill in a profile and choose what to publish. The board approves each profile before it appears.</p>
+    </div>
+  </section>
+</Base>

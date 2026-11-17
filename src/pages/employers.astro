@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { club, listAnd } from '../data/club';
+const crumbs = [{ name: 'For employers', path: 'employers/' }];
+---
+<Base
+  path="employers/"
+  crumbs={crumbs}
+  title="For employers | Michigan Sustainable Investments"
+  description="Speak at Michigan Sustainable Investments (MSI), meet members, or support the symposium. Contact the club's external team at the University of Michigan."
+>
+  <PageHead title="For employers and speakers" lead="MSI connects firms working in sustainable finance with University of Michigan undergraduates who study it." crumbs={crumbs} />
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="grid-3">
+        <div class="card"><span class="marker"></span><h2 style="font-size:26px;letter-spacing:-0.02em">Speak to members</h2><p style="margin-top:12px">{`Lead a session on your team's work. Past speakers have come from ${listAnd(club.speakerFirms)}.`}</p></div>
+        <div class="card"><span class="marker"></span><h2 style="font-size:26px;letter-spacing:-0.02em">Meet members</h2><p style="margin-top:12px">Host a coffee chat, an office visit or a recruiting session.</p></div>
+        <div class="card"><span class="marker"></span><h2 style="font-size:26px;letter-spacing:-0.02em">Support the symposium</h2><p style="margin-top:12px">Sponsor the club's flagship event or join a panel.</p></div>
+      </div>
+      <div class="prose" style="margin-top:64px">
+        <h2>Contact</h2>
+        {club.contactEmail
+          ? <p>Write to the VP of External at <a href={`mailto:${club.contactEmail}`}>{club.contactEmail}</a>.</p>
+          : <p>Contact details will be posted here.</p>}
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,51 @@
+# Builds the site and publishes it to GitHub Pages.
+# Runs on every push to main, by hand, when Supabase/another tool sends a "repository_dispatch" event,
+# and every 6 hours so newly approved profiles appear without anyone touching code.
+name: Deploy site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Works out the site's address (free github.io address or your own domain) so nothing has to be typed in.
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: npm ci
+      - run: npm run build
+        env:
+          # Address and path are detected automatically; set the variables SITE_URL / BASE_PATH only to override.
+          SITE_URL: ${{ vars.SITE_URL || steps.pages.outputs.origin }}
+          BASE_PATH: ${{ vars.BASE_PATH || format('{0}/', steps.pages.outputs.base_path) }}
+          # The two Supabase values go under Settings > Secrets and variables > Actions > Variables.
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

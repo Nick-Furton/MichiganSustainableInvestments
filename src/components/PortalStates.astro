@@ -1,0 +1,31 @@
+---
+// State panels shared by the three members pages. The script shows exactly one (data-state).
+// Without JavaScript the "signedout" panel (or "unconfigured") stays visible.
+import { url } from '../lib/url';
+import { portalConfigured } from '../lib/members';
+const configured = portalConfigured();
+interface Props { signInHere?: boolean }
+const { signInHere = false } = Astro.props;
+---
+<div data-state="unconfigured" hidden={configured}>
+  <p class="notice">Member sign-in is not switched on yet.</p>
+</div>
+<div data-state="signedout" hidden={!configured}>
+  {signInHere ? (
+    <>
+      <p class="notice">Sign in with your University of Michigan Google account to create or update your profile.</p>
+      <p><button class="btn btn-dark" type="button" id="btn-signin">Sign in with Google</button></p>
+      <p class="small">Only @umich.edu accounts on the club roster can sign in. Not on the roster? Ask a board member to add you.</p>
+    </>
+  ) : (
+    <p><a class="btn btn-dark" href={url('members/')}>Member sign-in</a></p>
+  )}
+</div>
+<div data-state="wrongdomain" hidden>
+  <p class="notice error">Use your @umich.edu account.</p>
+  <p><button class="btn btn-outline" type="button" id="btn-signout-wrong" data-signout>Sign out</button></p>
+</div>
+<div data-state="none" hidden>
+  <p class="notice error">Your account is not on the club roster yet. Ask a board member to add you.</p>
+  <p><button class="btn btn-outline" type="button" data-signout>Sign out</button></p>
+</div>

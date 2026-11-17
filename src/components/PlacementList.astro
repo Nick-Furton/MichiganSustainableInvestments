@@ -1,0 +1,16 @@
+---
+import type { PublicPlacement } from '../lib/members';
+interface Props { items: PublicPlacement[] }
+const { items } = Astro.props;
+---
+<ul class="rows">
+  {items.map((p) => (
+    <li>
+      <span class="firm">{p.firm}</span>
+      {p.team && <><span class="sep" aria-hidden="true">·</span><span>{p.team}</span></>}
+      <span class="sep" aria-hidden="true">·</span><span>{p.kind === 'internship' ? 'Internship' : 'Full-time'}</span>
+      {p.member_name && <><span class="sep" aria-hidden="true">·</span><span>{p.member_name}</span></>}
+      {p.member_name && p.class_year && <><span class="sep" aria-hidden="true">·</span><span>{p.class_year}</span></>}
+    </li>
+  ))}
+</ul>

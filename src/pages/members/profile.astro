@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PortalStates from '../../components/PortalStates.astro';
+import { url } from '../../lib/url';
+---
+<Base
+  path="members/profile/"
+  crumbs={[{ name: 'Member sign-in', path: 'members/' }, { name: 'Your profile', path: 'members/profile/' }]}
+  noindex
+  title="Your profile | Michigan Sustainable Investments"
+  description="Edit your Michigan Sustainable Investments (MSI) member profile and choose what appears on the public site. The board approves each profile."
+>
+  <PageHead title="Your profile" />
+  <section class="section-tight portal-section">
+    <div class="wrap portal">
+      <div id="msg" class="notice" role="alert" hidden></div>
+      <PortalStates />
+      <div data-state="ready" hidden>
+        <p class="btn-row" style="margin-bottom:24px">
+          <a class="btn btn-outline btn-sm" id="link-admin" href={url('members/admin/')} hidden>Board admin</a>
+          <button class="btn btn-outline btn-sm" type="button" id="btn-signout">Sign out</button>
+        </p>
+        <form id="profile-form" class="form" novalidate>
+          <p class="status-line" id="status-line" role="status">Draft</p>
+          <div class="field"><label for="full_name">Full name</label><input type="text" id="full_name" name="full_name" autocomplete="name" maxlength="120" required /><span class="err" data-err="full_name" role="alert"></span></div>
+          <div class="grid-form">
+            <div class="field"><label for="class_year">Class year</label><input type="text" inputmode="numeric" id="class_year" name="class_year" maxlength="4" /><span class="err" data-err="class_year" role="alert"></span></div>
+            <div class="field"><label for="school">School</label><input type="text" id="school" name="school" maxlength="120" /></div>
+          </div>
+          <div class="field"><label for="major">Major</label><input type="text" id="major" name="major" maxlength="120" /></div>
+          <div class="field"><label for="linkedin_url">LinkedIn URL</label><input type="url" id="linkedin_url" name="linkedin_url" placeholder="https://www.linkedin.com/in/your-name" /><span class="err" data-err="linkedin_url" role="alert"></span></div>
+          <div class="field" id="board-title-row" hidden><span class="legend">Board title</span><strong id="board-title"></strong><span class="hint">Set by the board.</span></div>
+          <div class="field">
+            <label for="headshot">Headshot</label>
+            <div class="headshot-row">
+              <img id="headshot-preview" class="headshot-preview" alt="Headshot preview" width="120" height="120" hidden />
+              <input type="file" id="headshot" name="headshot" accept="image/jpeg,image/png,image/webp" />
+            </div>
+            <span class="hint">JPEG, PNG or WebP, up to 10 MB.</span><span class="err" data-err="headshot" role="alert"></span>
+          </div>
+          <div class="field"><label for="bio">Short bio</label><textarea id="bio" name="bio" maxlength="400"></textarea><span class="hint" id="bio-count">0 / 400</span><span class="err" data-err="bio" role="alert"></span></div>
+          <fieldset>
+            <legend>Placements</legend>
+            <div id="placement-list"></div>
+            <p style="margin:16px 0 0"><button type="button" class="btn btn-outline btn-sm" id="btn-add-placement">Add a placement</button></p>
+          </fieldset>
+          <fieldset>
+            <legend>Choose what appears on the public site</legend>
+            <label class="check"><input type="checkbox" name="show_identity" /><span>My name, class year and program</span></label>
+            <label class="check"><input type="checkbox" name="show_headshot" /><span>My headshot</span></label>
+            <label class="check"><input type="checkbox" name="show_linkedin" /><span>My LinkedIn link</span></label>
+            <label class="check"><input type="checkbox" name="show_placements" /><span>My placements</span></label>
+            <label class="check"><input type="checkbox" name="show_name_on_placements" /><span>My name next to my placements</span></label>
+            <p class="small" style="margin:8px 0 0">Nothing appears publicly until the board approves your profile. You can unpublish or delete your profile at any time.</p>
+          </fieldset>
+          <div class="btn-row">
+            <button type="button" class="btn btn-outline" id="btn-draft">Save draft</button>
+            <button type="button" class="btn btn-dark" id="btn-submit">Submit for approval</button>
+            <button type="button" class="btn btn-outline" id="btn-unpublish" hidden>Unpublish</button>
+            <button type="button" class="btn btn-danger" id="btn-delete" hidden>Delete my profile</button>
+          </div>
+        </form>
+        <template id="placement-tpl">
+          <div class="placement-row">
+            <div class="field"><label data-for="firm">Firm</label><input type="text" data-f="firm" maxlength="120" /></div>
+            <div class="field"><label data-for="team">Group or team</label><input type="text" data-f="team" maxlength="120" /></div>
+            <div class="field"><label data-for="kind">Type</label><select data-f="kind"><option value="internship">Internship</option><option value="full_time">Full-time</option></select></div>
+            <div class="field"><label data-for="year">Year</label><input type="text" inputmode="numeric" maxlength="4" data-f="year" /></div>
+            <button type="button" class="btn btn-outline btn-sm" data-remove aria-label="Remove placement">Remove</button>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+  <script>import '../../scripts/portal/profile';</script>
+</Base>

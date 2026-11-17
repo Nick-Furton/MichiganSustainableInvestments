@@ -1,0 +1,181 @@
+{
+  "_note": "Obviously fake data for SAMPLE_DATA=1 previews. Never real people or firms.",
+  "profiles": [
+    {
+      "profile_id": "sample-1",
+      "full_name": "Sample Member A",
+      "class_year": 2026,
+      "school": "College of Literature, Science, and the Arts",
+      "major": "Sample Major One",
+      "linkedin_url": "https://www.linkedin.com/in/sample-member",
+      "headshot_url": null,
+      "board_title": "President",
+      "sort_order": 1
+    },
+    {
+      "profile_id": "sample-2",
+      "full_name": "Sample Member B",
+      "class_year": 2027,
+      "school": "Ross School of Business",
+      "major": "Sample Major Two",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": "Vice President of Education",
+      "sort_order": 2
+    },
+    {
+      "profile_id": "sample-3",
+      "full_name": "Sample Member C",
+      "class_year": 2028,
+      "school": "School for Environment and Sustainability",
+      "major": "Sample Major Three",
+      "linkedin_url": "https://www.linkedin.com/in/sample-member",
+      "headshot_url": null,
+      "board_title": "Vice President of External",
+      "sort_order": 3
+    },
+    {
+      "profile_id": "sample-4",
+      "full_name": "Sample Member D",
+      "class_year": 2026,
+      "school": "College of Literature, Science, and the Arts",
+      "major": "Sample Major One",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": "Vice President of Finance",
+      "sort_order": 4
+    },
+    {
+      "profile_id": "sample-5",
+      "full_name": "Sample Member E",
+      "class_year": 2027,
+      "school": "Ross School of Business",
+      "major": "Sample Major Two",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": "Vice President of Operations",
+      "sort_order": 5
+    },
+    {
+      "profile_id": "sample-6",
+      "full_name": "Sample Member F",
+      "class_year": 2028,
+      "school": "School for Environment and Sustainability",
+      "major": "Sample Major Three",
+      "linkedin_url": "https://www.linkedin.com/in/sample-member",
+      "headshot_url": null,
+      "board_title": null,
+      "sort_order": null
+    },
+    {
+      "profile_id": "sample-7",
+      "full_name": "Sample Member G",
+      "class_year": 2026,
+      "school": "College of Literature, Science, and the Arts",
+      "major": "Sample Major One",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": null,
+      "sort_order": null
+    },
+    {
+      "profile_id": "sample-8",
+      "full_name": "Sample Member H",
+      "class_year": 2027,
+      "school": "Ross School of Business",
+      "major": "Sample Major Two",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": null,
+      "sort_order": null
+    },
+    {
+      "profile_id": "sample-9",
+      "full_name": "Sample Member I",
+      "class_year": 2028,
+      "school": "School for Environment and Sustainability",
+      "major": "Sample Major Three",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": null,
+      "sort_order": null
+    },
+    {
+      "profile_id": "sample-10",
+      "full_name": "Sample Member J",
+      "class_year": 2026,
+      "school": "College of Literature, Science, and the Arts",
+      "major": "Sample Major One",
+      "linkedin_url": null,
+      "headshot_url": null,
+      "board_title": null,
+      "sort_order": null
+    }
+  ],
+  "placements": [
+    {
+      "firm": "Sample Firm One",
+      "team": "Sample Group Alpha",
+      "kind": "internship",
+      "year": 2026,
+      "member_name": "Sample Member A",
+      "class_year": 2026
+    },
+    {
+      "firm": "Sample Firm Two",
+      "team": "Sample Group Beta",
+      "kind": "full_time",
+      "year": 2026,
+      "member_name": null,
+      "class_year": null
+    },
+    {
+      "firm": "Sample Firm Three",
+      "team": "Sample Group Gamma",
+      "kind": "internship",
+      "year": 2026,
+      "member_name": "Sample Member C",
+      "class_year": 2028
+    },
+    {
+      "firm": "Sample Firm Four",
+      "team": "Sample Group Alpha",
+      "kind": "full_time",
+      "year": 2026,
+      "member_name": "Sample Member D",
+      "class_year": 2026
+    },
+    {
+      "firm": "Sample Firm Five",
+      "team": "Sample Group Beta",
+      "kind": "internship",
+      "year": 2025,
+      "member_name": null,
+      "class_year": null
+    },
+    {
+      "firm": "Sample Firm Six",
+      "team": "Sample Group Gamma",
+      "kind": "full_time",
+      "year": 2025,
+      "member_name": "Sample Member F",
+      "class_year": 2028
+    },
+    {
+      "firm": "Sample Firm One",
+      "team": "Sample Group Alpha",
+      "kind": "internship",
+      "year": 2025,
+      "member_name": "Sample Member G",
+      "class_year": 2026
+    },
+    {
+      "firm": "Sample Firm Two",
+      "team": "Sample Group Beta",
+      "kind": "full_time",
+      "year": 2025,
+      "member_name": null,
+      "class_year": null
+    }
+  ]
+}
