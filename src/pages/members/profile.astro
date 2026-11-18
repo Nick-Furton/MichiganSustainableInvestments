@@ -21,6 +21,7 @@ import { url } from '../../lib/url';
           <a class="btn btn-outline btn-sm" id="link-admin" href={url('members/admin/')} hidden>Board admin</a>
           <button class="btn btn-outline btn-sm" type="button" id="btn-signout">Sign out</button>
         </p>
+        <p class="notice" id="applicant-note" hidden>Fill in your profile and submit it. The board reviews it before anything appears on the site.</p>
         <form id="profile-form" class="form" novalidate>
           <p class="status-line" id="status-line" role="status">Draft</p>
           <div class="field"><label for="full_name">Full name</label><input type="text" id="full_name" name="full_name" autocomplete="name" maxlength="120" required /><span class="err" data-err="full_name" role="alert"></span></div>

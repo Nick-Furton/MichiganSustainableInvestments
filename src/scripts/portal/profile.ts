@@ -17,8 +17,9 @@ const STATUS_TEXT: Record<string, string> = { draft: 'Draft', submitted: 'Waitin
   if (!UMICH.test(session.email)) return showState('wrongdomain');
   let access;
   try { access = await api.access(); } catch (e) { showState('signedout'); return setMessage(msg, errText(e), 'error'); }
-  if (access === 'none') return showState('none');
+  if (access === 'none') return showState('wrongdomain');
   $('#link-admin')!.hidden = access !== 'admin';
+  $('#applicant-note')!.hidden = access !== 'applicant';
 
   const form = $<HTMLFormElement>('#profile-form')!;
   const f = (name: string) => form.elements.namedItem(name) as HTMLInputElement;

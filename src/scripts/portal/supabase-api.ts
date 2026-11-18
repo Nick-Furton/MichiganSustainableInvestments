@@ -130,6 +130,12 @@ export function createSupabaseApi(): Api {
     async unpublishProfile(profileId, note) {
       check(await sb().rpc('unpublish_profile', { profile_id: profileId, note }));
     },
+    async adminDeleteProfile(profileId) {
+      check(await sb().rpc('delete_profile', { profile_id: profileId }));
+      // Admins may list and delete any headshot, so clean up the person's folder too.
+      const files = (await sb().storage.from('headshots').list(profileId)).data ?? [];
+      if (files.length) await sb().storage.from('headshots').remove(files.map((f) => `${profileId}/${f.name}`));
+    },
     async approve(profileId) {
       check(await sb().rpc('approve_profile', { profile_id: profileId }));
     },
@@ -137,9 +143,10 @@ export function createSupabaseApi(): Api {
       check(await sb().rpc('request_changes', { profile_id: profileId, note }));
     },
     async listBoard() {
-      const profiles = check(await sb().from('profiles').select('id, full_name, email').order('full_name')) as { id: string; full_name: string | null; email: string }[];
+      // Everyone who is submitted or approved, plus anyone who already has a title.
+      const profiles = check(await sb().from('profiles').select('id, full_name, email, status').order('full_name')) as { id: string; full_name: string | null; email: string; status: string }[];
       const bp = check(await sb().from('board_positions').select('profile_id, title, sort_order')) as { profile_id: string; title: string; sort_order: number }[];
-      return profiles.map((p): BoardRow => {
+      return profiles.filter((p) => p.status === 'submitted' || p.status === 'approved' || bp.some((x) => x.profile_id === p.id)).map((p): BoardRow => {
         const b = bp.find((x) => x.profile_id === p.id);
         return { profile_id: p.id, full_name: p.full_name || p.email, email: p.email, title: b?.title ?? '', sort_order: b?.sort_order ?? 0 };
       });

@@ -181,12 +181,12 @@ Link: `Read about the program →` → /program
 
 ## Members area (not indexed: `noindex`)
 
-- `/members` — H1 `Member sign-in` — `Sign in with your University of Michigan Google account to create or update your profile.` — button `Sign in with Google` — note: `Only @umich.edu accounts on the club roster can sign in. Not on the roster? Ask a board member to add you.`
-- States: not configured → `Member sign-in is not switched on yet.` · wrong domain → `Use your @umich.edu account.` · not on roster → `Your account is not on the club roster yet. Ask a board member to add you.`
+- `/members` — H1 `Member sign-in` — `Sign in with your University of Michigan Google account to create or update your profile.` — button `Sign in with Google` — note: `Use your @umich.edu Google account. New members can create a profile right away. The board approves every profile before it appears on the site.`
+- States: not configured → `Member sign-in is not switched on yet.` · wrong domain → `Use your @umich.edu account.` · applicant (signed in, not on the roster yet) → the profile form with the line `Fill in your profile and submit it. The board reviews it before anything appears on the site.` There is no "not on the roster" state: anyone with an @umich.edu Google account can create a profile, and approval by the board makes them a member.
 - `/members/profile` — H1 `Your profile` — fields: full name; class year; school; major; LinkedIn URL; headshot; short bio (max 400 characters); placements (firm, group or team, internship or full-time, year). Board title is shown read-only with the note `Set by the board.`
 - Consent heading `Choose what appears on the public site` — checkboxes: `My name, class year and program` · `My headshot` · `My LinkedIn link` · `My placements` · `My name next to my placements`. Note: `Nothing appears publicly until the board approves your profile. You can unpublish or delete your profile at any time.`
 - Buttons: `Save draft` · `Submit for approval` · `Delete my profile`. Status line: `Draft` / `Waiting for board approval` / `Published` / `Changes requested: {note}`.
-- `/members/admin` — H1 `Board admin` — tabs: `Roster` (add/remove umich emails, paste a list), `Review` (approve / request changes), `Board titles` (assign title and display order per person), `Export` (CSV).
+- `/members/admin` — H1 `Board admin` — tabs: `Roster` (intro: `People on this list are confirmed members. Approving a profile adds its owner automatically.` Add/remove umich emails, paste a list), `Review` (each submitter's email, a `New` badge for people not yet on the roster, approve / request changes / `Delete` with the confirm `Delete this profile? This cannot be undone.` then `Profile deleted.`; below it a `Published` list with `Unpublish` and a required note), `Board titles` (every submitted or approved profile, name and email; assign title and display order), `Export` (CSV).
 
 ## Privacy (`/privacy`)
 

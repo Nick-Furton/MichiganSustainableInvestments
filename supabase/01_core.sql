@@ -3,9 +3,12 @@
 -- Safe to run more than once: every statement is written so that a second run changes nothing.
 --
 -- How access works, in plain English:
---   * Only people whose email is on the "roster" (or the "admins" list) count as members.
---   * Members can see and edit ONLY their own profile. They cannot see anyone else's.
---   * Admins (the board) can read every profile, and approve or send back submitted ones.
+--   * Anyone with an @umich.edu Google account can sign in, then draft and submit their OWN
+--     profile. Nothing is public, and nobody counts as a member, until the board approves.
+--   * Approving a profile adds its owner to the "roster", which is what makes someone a member.
+--     The board can also pre-load the roster by hand (optional).
+--   * Everyone can see and edit ONLY their own profile. They cannot see anyone else's.
+--   * Admins (the board) can read every profile, approve it, send it back, take it down or delete it.
 --   * The public website reads two "views" that are built ONLY from the snapshot taken at
 --     approval time, so nothing unconsented or private (email, notes, status) can leak.
 --   * The database makes every decision. The browser is never trusted.
@@ -13,7 +16,7 @@
 
 -- ---------- Tables -------------------------------------------------------------------
 
--- People allowed to create a profile. Emails must be lower-case @umich.edu.
+-- Confirmed members. Filled by approving a profile (or by hand). Emails must be lower-case @umich.edu.
 create table if not exists public.roster (
   email text primary key,
   constraint roster_email_ok check (email = lower(email) and email like '%@umich.edu')
@@ -100,11 +103,22 @@ language sql stable security definer set search_path = public, pg_temp as $$
       or public.is_admin();
 $$;
 
--- What the website asks right after sign-in: 'admin', 'member' or 'none'.
+-- Any signed-in @umich.edu Google account may have (draft, submit, delete) its own profile.
+create or replace function public.can_have_profile() returns boolean
+language sql stable set search_path = public, pg_temp as $$
+  select public.signed_in_email() is not null;
+$$;
+
+-- What the website asks right after sign-in:
+--   'admin'     on the admin list
+--   'member'    on the roster (an approved member)
+--   'applicant' a signed-in @umich.edu Google account that is not on the roster yet
+--   'none'      anything else (for example a token that did not come from Google)
 create or replace function public.my_access() returns text
 language sql stable security definer set search_path = public, pg_temp as $$
   select case when public.is_admin() then 'admin'
-              when public.is_member() then 'member'
+              when exists (select 1 from public.roster r where r.email = public.signed_in_email()) then 'member'
+              when public.can_have_profile() then 'applicant'
               else 'none' end;
 $$;
 
@@ -219,15 +233,15 @@ create policy roster_admin on public.roster for all to authenticated using (publ
 drop policy if exists admins_admin on public.admins;
 create policy admins_admin on public.admins for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
--- profiles: a member sees and changes only their own row, and only while on the roster.
+-- profiles: a person sees and changes only their own row (any signed-in @umich.edu Google account).
 drop policy if exists profiles_own_select on public.profiles;
-create policy profiles_own_select on public.profiles for select to authenticated using (id = auth.uid() and public.is_member());
+create policy profiles_own_select on public.profiles for select to authenticated using (id = auth.uid() and public.can_have_profile());
 drop policy if exists profiles_own_insert on public.profiles;
-create policy profiles_own_insert on public.profiles for insert to authenticated with check (id = auth.uid() and public.is_member());
+create policy profiles_own_insert on public.profiles for insert to authenticated with check (id = auth.uid() and public.can_have_profile());
 drop policy if exists profiles_own_update on public.profiles;
-create policy profiles_own_update on public.profiles for update to authenticated using (id = auth.uid() and public.is_member()) with check (id = auth.uid() and public.is_member());
+create policy profiles_own_update on public.profiles for update to authenticated using (id = auth.uid() and public.can_have_profile()) with check (id = auth.uid() and public.can_have_profile());
 drop policy if exists profiles_own_delete on public.profiles;
-create policy profiles_own_delete on public.profiles for delete to authenticated using (id = auth.uid() and public.is_member());
+create policy profiles_own_delete on public.profiles for delete to authenticated using (id = auth.uid() and public.can_have_profile());
 -- admins: read everything (changes go through the approve/request-changes functions).
 drop policy if exists profiles_admin_select on public.profiles;
 create policy profiles_admin_select on public.profiles for select to authenticated using (public.is_admin());
@@ -235,7 +249,7 @@ create policy profiles_admin_select on public.profiles for select to authenticat
 -- placements: same idea, through the owning profile.
 drop policy if exists placements_own on public.placements;
 create policy placements_own on public.placements for all to authenticated
-  using (profile_id = auth.uid() and public.is_member()) with check (profile_id = auth.uid() and public.is_member());
+  using (profile_id = auth.uid() and public.can_have_profile()) with check (profile_id = auth.uid() and public.can_have_profile());
 drop policy if exists placements_admin_select on public.placements;
 create policy placements_admin_select on public.placements for select to authenticated using (public.is_admin());
 
@@ -274,6 +288,19 @@ begin
   update public.profiles
      set published = snap, status = 'approved', approved_at = now(), review_note = null
    where id = profile_id;
+  -- Approval is what makes someone a member.
+  if p.email is not null then
+    insert into public.roster (email) values (p.email) on conflict do nothing;
+  end if;
+end $$;
+
+-- The board deletes a profile outright (its placements and board title go with it).
+create or replace function public.delete_profile(profile_id uuid) returns void
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  if not public.is_admin() then raise exception 'Admins only'; end if;
+  delete from public.profiles where id = profile_id;
+  if not found then raise exception 'No such profile'; end if;
 end $$;
 
 create or replace function public.request_changes(profile_id uuid, note text) returns void
@@ -298,14 +325,14 @@ end $$;
 create or replace function public.unpublish_my_profile() returns void
 language plpgsql security definer set search_path = public, pg_temp as $$
 begin
-  if not public.is_member() then raise exception 'Not a member'; end if;
+  if not public.can_have_profile() then raise exception 'Sign in with your @umich.edu Google account'; end if;
   update public.profiles set published = null, approved_at = null, status = 'draft' where id = auth.uid();
 end $$;
 
-revoke all on function public.approve_profile(uuid), public.request_changes(uuid, text), public.unpublish_my_profile(), public.unpublish_profile(uuid, text) from public, anon;
-grant execute on function public.approve_profile(uuid), public.request_changes(uuid, text), public.unpublish_my_profile(), public.unpublish_profile(uuid, text) to authenticated;
-revoke all on function public.is_admin(), public.is_member(), public.my_access(), public.signed_in_email() from public, anon;
-grant execute on function public.is_admin(), public.is_member(), public.my_access(), public.signed_in_email() to authenticated;
+revoke all on function public.approve_profile(uuid), public.request_changes(uuid, text), public.unpublish_my_profile(), public.unpublish_profile(uuid, text), public.delete_profile(uuid) from public, anon;
+grant execute on function public.approve_profile(uuid), public.request_changes(uuid, text), public.unpublish_my_profile(), public.unpublish_profile(uuid, text), public.delete_profile(uuid) to authenticated;
+revoke all on function public.is_admin(), public.is_member(), public.my_access(), public.signed_in_email(), public.can_have_profile() from public, anon;
+grant execute on function public.is_admin(), public.is_member(), public.my_access(), public.signed_in_email(), public.can_have_profile() to authenticated;
 
 -- ---------- Public read models (what the website builds Team and Placements from) ---
 -- Views run with the owner's rights (so they can read the locked tables) but they only select

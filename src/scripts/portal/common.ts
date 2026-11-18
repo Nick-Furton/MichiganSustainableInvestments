@@ -6,7 +6,18 @@ export const $$ = <T extends HTMLElement = HTMLElement>(sel: string, root: Paren
 export const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 
 /** Show exactly one state panel: elements marked data-state="name". */
+// True when Google sign-in bounced back with an error. The usual cause is a personal (non-umich) Google
+// account: the database refuses to create it, so there is no session to inspect.
+function signInWasRefused() {
+  const q = new URLSearchParams(location.search);
+  const h = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const refused = q.has('error') || q.has('error_description') || h.has('error') || h.has('error_description');
+  if (refused) history.replaceState(null, '', location.pathname);
+  return refused;
+}
 export function showState(name: string) {
+  // A refused sign-in looks like "signed out"; show the "use your umich account" panel instead.
+  if (name === 'signedout' && signInWasRefused()) name = 'wrongdomain';
   for (const el of $$('[data-state]')) el.hidden = el.dataset.state !== name;
 }
 

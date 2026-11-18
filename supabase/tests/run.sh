@@ -19,5 +19,8 @@ psql_ "$here/../01_core.sql"
 echo "01_core.sql loaded"
 psql_ "$here/../01_core.sql"
 echo "01_core.sql loaded a second time (idempotent)"
+psql_ "$here/../02_storage.sql"
+psql_ "$here/../02_storage.sql"
+echo "02_storage.sql loaded twice (idempotent)"
 psql_ "$here/rls_test.sql" 2>&1 | grep -E "PASS|FAIL|ERROR|ALL PASSED|result|assertions" | sed 's/^psql:[^ ]* //' | tail -n 200
 test "${PIPESTATUS[1]}" = 0 || { echo "DATABASE TESTS FAILED"; exit 1; }

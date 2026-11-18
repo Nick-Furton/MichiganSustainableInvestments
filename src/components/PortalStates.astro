@@ -15,7 +15,7 @@ const { signInHere = false } = Astro.props;
     <>
       <p class="notice">Sign in with your University of Michigan Google account to create or update your profile.</p>
       <p><button class="btn btn-dark" type="button" id="btn-signin">Sign in with Google</button></p>
-      <p class="small">Only @umich.edu accounts on the club roster can sign in. Not on the roster? Ask a board member to add you.</p>
+      <p class="small">Use your @umich.edu Google account. New members can create a profile right away. The board approves every profile before it appears on the site.</p>
     </>
   ) : (
     <p><a class="btn btn-dark" href={url('members/')}>Member sign-in</a></p>
@@ -23,9 +23,5 @@ const { signInHere = false } = Astro.props;
 </div>
 <div data-state="wrongdomain" hidden>
   <p class="notice error">Use your @umich.edu account.</p>
-  <p><button class="btn btn-outline" type="button" id="btn-signout-wrong" data-signout>Sign out</button></p>
-</div>
-<div data-state="none" hidden>
-  <p class="notice error">Your account is not on the club roster yet. Ask a board member to add you.</p>
-  <p><button class="btn btn-outline" type="button" data-signout>Sign out</button></p>
+  <p><a class="btn btn-dark" href={url('members/')}>Try again</a> <button class="btn btn-outline" type="button" id="btn-signout-wrong" data-signout>Sign out</button></p>
 </div>

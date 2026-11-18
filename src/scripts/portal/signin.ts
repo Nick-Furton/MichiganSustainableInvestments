@@ -13,7 +13,7 @@ import { getApi, showState, $, setMessage, errText, base, UMICH } from './common
     if (!s) return showState('signedout');
     if (!UMICH.test(s.email)) return showState('wrongdomain');
     const access = await api.access();
-    if (access === 'none') return showState('none');
+    if (access === 'none') return showState('wrongdomain');
     $('#link-admin')!.hidden = access !== 'admin';
     showState('ready');
   } catch (e) {

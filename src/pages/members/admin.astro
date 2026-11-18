@@ -24,6 +24,7 @@ import PortalStates from '../../components/PortalStates.astro';
           <button class="tab" role="tab" id="tab-export" aria-controls="panel-export" aria-selected="false" tabindex="-1" type="button">Export</button>
         </div>
         <section id="panel-roster" role="tabpanel" aria-labelledby="tab-roster">
+          <p>People on this list are confirmed members. Approving a profile adds its owner automatically.</p>
           <form class="stack" id="roster-form">
             <div class="field"><label for="roster-input">Add @umich.edu emails</label><textarea id="roster-input" placeholder="one per line, or paste a list"></textarea><span class="hint">Separate emails with lines, commas or spaces.</span></div>
             <p><button class="btn btn-dark" type="submit">Add to roster</button></p>

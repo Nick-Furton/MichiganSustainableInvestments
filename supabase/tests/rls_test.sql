@@ -6,6 +6,7 @@
 \set eve   '33333333-3333-3333-3333-333333333333'
 \set boss  '44444444-4444-4444-4444-444444444444'
 \set dana  '55555555-5555-5555-5555-555555555555'
+\set gus   '66666666-6666-6666-6666-666666666666'
 
 create schema t;
 create table t.results (name text);
@@ -37,7 +38,7 @@ grant execute on all functions in schema t to public;
 
 -- Fixtures (as the database owner): four accounts, two on the roster, one admin.
 insert into auth.users (id, email) values
-  (:'alice', 'alice@umich.edu'), (:'bob', 'bob@umich.edu'), (:'eve', 'eve@umich.edu'), (:'boss', 'boss@umich.edu'), (:'dana', 'dana@umich.edu');
+  (:'alice', 'alice@umich.edu'), (:'bob', 'bob@umich.edu'), (:'eve', 'eve@umich.edu'), (:'boss', 'boss@umich.edu'), (:'dana', 'dana@umich.edu'), (:'gus', 'gus@umich.edu');
 insert into public.roster values ('alice@umich.edu'), ('bob@umich.edu'), ('dana@umich.edu');
 insert into public.admins values ('boss@umich.edu');
 
@@ -53,11 +54,12 @@ select t.throws('select * from public.board_positions', 'anon cannot read board_
 select t.throws($$insert into public.roster values ('x@umich.edu')$$, 'anon cannot write roster');
 reset role;
 
--- ===== Umich account that is NOT on the roster =====
+-- ===== Umich Google account that is NOT on the roster is an applicant =====
 select t.claims('eve@umich.edu', :'eve');
 set role authenticated;
-select t.ok(public.my_access() = 'none', 'non-roster umich user gets none');
-select t.throws(format($$insert into public.profiles (id, full_name) values (%L, 'Eve')$$, :'eve'), 'non-roster user cannot create a profile');
+select t.ok(public.my_access() = 'applicant', 'non-roster umich google user gets applicant');
+select t.ok(t.count('select * from public.roster') = 0, 'applicant cannot read the roster');
+select t.ok(t.count('select * from public.admins') = 0, 'applicant cannot read admins');
 reset role;
 
 -- ===== Roster member: alice =====
@@ -252,12 +254,98 @@ set role anon;
 select t.ok(t.count(format($$select * from public.public_profiles where profile_id = %L$$, :'dana')) = 0, 'admin-unpublished profile leaves the public views');
 reset role;
 
--- ===== Member who leaves the roster loses access =====
+-- ===== Self-signup: applicant creates a profile, the board approves, the applicant becomes a member =====
+select t.claims('gus@umich.edu', :'gus');
+set role authenticated;
+select t.ok(public.my_access() = 'applicant', 'new umich google user is an applicant');
+insert into public.profiles (id, full_name, class_year, school, major, show_identity, show_placements)
+  values (:'gus', 'Gus Sample', 2028, 'Sample School', 'Sample Major', true, true);
+select t.ok((select email from public.profiles where id = :'gus') = 'gus@umich.edu', 'applicant profile email comes from the token');
+insert into public.placements (profile_id, firm, kind, year) values (:'gus', 'Sample Firm Nine', 'internship', 2026);
+select t.ok(t.affected(format($$update public.profiles set major = 'New Major', status = 'submitted' where id = %L$$, :'gus')) = 1, 'applicant can edit and submit their own profile');
+select t.ok(t.count('select * from public.profiles') = 1, 'applicant sees only their own profile');
+select t.ok(t.count(format($$select * from public.profiles where id = %L$$, :'bob')) = 0, 'applicant cannot read another profile');
+select t.ok(t.affected(format($$update public.profiles set full_name = 'Hacked' where id = %L$$, :'bob')) = 0, 'applicant cannot update another profile');
+select t.ok(t.affected(format($$delete from public.profiles where id = %L$$, :'bob')) = 0, 'applicant cannot delete another profile');
+select t.ok(t.count('select * from public.roster') = 0, 'applicant still cannot read the roster');
+select t.throws($$insert into public.roster values ('gus@umich.edu')$$, 'applicant cannot add self to the roster');
+select t.throws($$insert into public.admins values ('gus@umich.edu')$$, 'applicant cannot add self to admins');
+select t.throws($$insert into public.board_positions values (auth.uid(), 'President', 1)$$, 'applicant cannot write board_positions');
+select t.throws($$update public.profiles set status = 'approved' where id = auth.uid()$$, 'applicant cannot set approved');
+select t.throws($$select public.approve_profile(auth.uid())$$, 'applicant cannot approve');
+select t.throws($$select public.delete_profile(auth.uid())$$, 'non-admin cannot call delete_profile');
+reset role;
+set role anon;
+select t.ok(t.count(format($$select * from public.public_profiles where profile_id = %L$$, :'gus')) = 0, 'a submitted applicant is not public');
+reset role;
+select t.claims('boss@umich.edu', :'boss');
+set role authenticated;
+select t.ok(t.count($$select * from public.roster where email = 'gus@umich.edu'$$) = 0, 'applicant is not on the roster before approval');
+select public.approve_profile(:'gus');
+select t.ok(t.count($$select * from public.roster where email = 'gus@umich.edu'$$) = 1, 'approval adds the email to the roster');
+select t.ok(t.count($$select * from public.roster where email = 'dana@umich.edu'$$) = 1, 'approval of an existing member keeps one roster row');
+insert into public.board_positions values (:'gus', 'Sample Treasurer', 5);
+reset role;
+select t.claims('gus@umich.edu', :'gus');
+set role authenticated;
+select t.ok(public.my_access() = 'member', 'approved applicant is now a member');
+reset role;
+select t.claims('gus@umich.edu', :'gus', 'email');
+set role authenticated;
+select t.ok(public.my_access() = 'none', 'email-provider token for an approved member still gets none');
+reset role;
+set role anon;
+select t.ok(t.count(format($$select * from public.public_profiles where profile_id = %L$$, :'gus')) = 1, 'approved applicant is public');
+reset role;
+select t.claims('boss@umich.edu', :'boss');
+set role authenticated;
+select public.delete_profile(:'gus');
+reset role;
+select t.ok((select count(*) from public.profiles where id = :'gus') = 0, 'admin delete removes the profile');
+select t.ok((select count(*) from public.placements where profile_id = :'gus') = 0, 'admin delete removes the placements');
+select t.ok((select count(*) from public.board_positions where profile_id = :'gus') = 0, 'admin delete removes the board position');
+set role anon;
+select t.ok(t.count(format($$select * from public.public_profiles where profile_id = %L$$, :'gus')) = 0, 'deleted person leaves the public views');
+select t.ok(t.count('select * from public.public_placements where firm = ''Sample Firm Nine''') = 0, 'deleted person placements leave the public views');
+reset role;
+select t.claims('boss@umich.edu', :'boss');
+set role authenticated;
+select t.throws(format($$select public.delete_profile(%L)$$, :'gus'), 'delete_profile on a missing profile fails');
+reset role;
+
+-- ===== Headshot storage rules =====
+select t.claims('gus@umich.edu', :'gus');
+set role authenticated;
+insert into storage.objects (bucket_id, name) values ('headshots', :'gus' || '/one.webp');
+select t.throws(format($$insert into storage.objects (bucket_id, name) values ('headshots', %L)$$, :'bob' || '/x.webp'), 'cannot upload into another folder');
+select t.throws($$insert into storage.objects (bucket_id, name) values ('other', auth.uid()::text || '/x.webp')$$, 'cannot upload into another bucket');
+insert into storage.objects (bucket_id, name) select 'headshots', :'gus' || '/f' || g || '.webp' from generate_series(2, 5) g;
+select t.ok(public.my_headshot_count() = 5, 'a member can hold 5 headshot files');
+select t.throws(format($$insert into storage.objects (bucket_id, name) values ('headshots', %L)$$, :'gus' || '/six.webp'), 'a 6th headshot file is rejected');
+select t.ok(t.affected(format($$delete from storage.objects where name = %L$$, :'gus' || '/f5.webp')) = 1, 'member can delete a file in their own folder');
+reset role;
+insert into storage.objects (bucket_id, name) values ('headshots', :'bob' || '/b.webp');
+select t.claims('gus@umich.edu', :'gus');
+set role authenticated;
+select t.ok(t.affected(format($$delete from storage.objects where name = %L$$, :'bob' || '/b.webp')) = 0, 'member cannot delete another folder file');
+select t.ok(t.count(format($$select * from storage.objects where name like %L$$, :'bob' || '/%')) = 0, 'member cannot list another folder');
+reset role;
+select t.claims('gus@umich.edu', :'gus', 'email');
+set role authenticated;
+select t.throws(format($$insert into storage.objects (bucket_id, name) values ('headshots', %L)$$, :'gus' || '/e.webp'), 'email-provider token cannot upload');
+reset role;
+select t.claims('boss@umich.edu', :'boss');
+set role authenticated;
+select t.ok(t.count('select * from storage.objects') = 5, 'admin can list any headshot');
+select t.ok(t.affected($$delete from storage.objects where name like '55555555%' or name like '66666666%' or name like '22222222%'$$) = 5, 'admin can delete any headshot');
+reset role;
+
+-- ===== A removed roster member is an applicant again and keeps their own profile =====
 delete from public.roster where email = 'bob@umich.edu';
 select t.claims('bob@umich.edu', :'bob');
 set role authenticated;
-select t.ok(public.my_access() = 'none', 'removed roster member gets none');
-select t.ok(t.count('select * from public.profiles') = 0, 'removed roster member cannot read own profile');
+select t.ok(public.my_access() = 'applicant', 'removed roster member becomes an applicant');
+select t.ok(t.count('select * from public.profiles') = 1, 'removed roster member can still read their own profile');
 reset role;
 
 \echo

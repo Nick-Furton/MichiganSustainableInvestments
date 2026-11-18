@@ -1,5 +1,5 @@
 // Shapes shared by the real (Supabase) and demo data layers.
-export type Access = 'admin' | 'member' | 'none';
+export type Access = 'admin' | 'member' | 'applicant' | 'none';
 export type Status = 'draft' | 'submitted' | 'approved' | 'changes_requested';
 export type Session = { userId: string; email: string };
 
@@ -47,6 +47,7 @@ export interface Api {
   listSubmitted(): Promise<ReviewItem[]>;
   listPublished(): Promise<Profile[]>;
   unpublishProfile(profileId: string, note: string): Promise<void>;
+  adminDeleteProfile(profileId: string): Promise<void>;
   approve(profileId: string): Promise<void>;
   requestChanges(profileId: string, note: string): Promise<void>;
   listBoard(): Promise<BoardRow[]>;

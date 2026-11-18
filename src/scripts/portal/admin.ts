@@ -10,7 +10,7 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
   if (!UMICH.test(session.email)) return showState('wrongdomain');
   let access;
   try { access = await api.access(); } catch (e) { showState('signedout'); return setMessage(msg, errText(e), 'error'); }
-  if (access === 'none') return showState('none');
+  if (access === 'none') return showState('wrongdomain');
   if (access !== 'admin') return showState('forbidden');
   showState('ready');
 
@@ -73,13 +73,23 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
     await run(async () => {
       const box = $('#review-list')!;
       box.replaceChildren();
+      const onRoster = new Set(await api!.listRoster());
       const items = await api!.listSubmitted();
+      const deleteBtn = (p: { id: string; full_name: string | null; email: string }) => {
+        const b = el('button', { type: 'button', className: 'btn btn-danger btn-sm', textContent: 'Delete' });
+        b.setAttribute('aria-label', `Delete ${p.full_name ?? p.email}`);
+        b.addEventListener('click', () => {
+          if (!confirm('Delete this profile? This cannot be undone.')) return;
+          run(async () => { await api!.adminDeleteProfile(p.id); await loadReview(); setMessage(msg, 'Profile deleted.', 'ok'); });
+        });
+        return b;
+      };
       if (!items.length) box.append(el('p', { className: 'notice' }, 'No profiles are waiting for review.'));
       for (const { profile: p, placements } of items) {
         const shown = [p.show_identity && 'name, class year and program', p.show_headshot && 'headshot', p.show_linkedin && 'LinkedIn link', p.show_placements && 'placements', p.show_name_on_placements && 'name next to placements'].filter(Boolean) as string[];
         const head = el('div', { className: 'head' });
         if (p.headshot_path) head.append(Object.assign(el('img', { className: 'headshot-preview', alt: `Headshot of ${p.full_name ?? 'member'}`, src: api!.headshotUrl(p.headshot_path), width: 80, height: 80 })));
-        head.append(el('div', {}, el('h3', {}, p.full_name || p.email), el('div', { className: 'small' }, p.email)));
+        head.append(el('div', {}, el('h3', {}, p.full_name || p.email), el('div', { className: 'small' }, p.email, ...(onRoster.has(p.email) ? [] : [' ', el('span', { className: 'tag tag-new' }, 'New')]))));
         const note = el('textarea', { id: `note-${p.id}`, placeholder: 'What should the member change?' }) as HTMLTextAreaElement;
         const noteField = el('div', { className: 'field' }, el('label', { htmlFor: note.id }, 'Note to the member'), note);
         const approve = el('button', { type: 'button', className: 'btn btn-dark btn-sm', textContent: 'Approve' });
@@ -98,7 +108,7 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
           placements.length ? plist : '',
           el('div', {}, ...(shown.length ? shown.map((s) => el('span', { className: 'tag' }, s)) : [el('span', { className: 'tag' }, 'Nothing chosen for the public site')])),
           noteField,
-          el('div', { className: 'btn-row' }, approve, changes)));
+          el('div', { className: 'btn-row' }, approve, changes, deleteBtn(p))));
       }
       // Published profiles, with a way to take one down.
       const pub = await api!.listPublished();
@@ -113,7 +123,7 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
           run(async () => { await api!.unpublishProfile(p.id, note.value.trim()); await loadReview(); setMessage(msg, 'Unpublished. The public site updates at the next rebuild.', 'ok'); });
         });
         box.append(el('article', { className: 'review-card' }, el('h3', {}, p.full_name || p.email), el('div', { className: 'small' }, p.email),
-          el('div', { className: 'field' }, el('label', { htmlFor: note.id }, 'Note to the member'), note), el('div', { className: 'btn-row' }, btn)));
+          el('div', { className: 'field' }, el('label', { htmlFor: note.id }, 'Note to the member'), note), el('div', { className: 'btn-row' }, btn, deleteBtn(p))));
       }
     });
   }

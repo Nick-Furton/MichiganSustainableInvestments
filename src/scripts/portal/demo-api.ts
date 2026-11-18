@@ -15,7 +15,7 @@ export function createDemoApi(): Api {
     { id: 'p1', firm: 'Sample Firm One', team: 'Sample Group Alpha', kind: 'internship', year: 2026 },
     { id: 'p2', firm: 'Sample Firm Two', team: 'Sample Group Beta', kind: 'full_time', year: 2027 },
   ];
-  let roster = ['sample.member.a@umich.edu', 'sample.member.b@umich.edu', 'sample.member.c@umich.edu', 'sample.member.d@umich.edu', 'sample.member.e@umich.edu'];
+  let roster = ['sample.member.a@umich.edu', 'sample.member.b@umich.edu', 'sample.member.d@umich.edu', 'sample.member.e@umich.edu'];
   let queue: ReviewItem[] = [
     { profile: mk('B', 2, 'submitted'), placements: [{ firm: 'Sample Firm Three', team: 'Sample Group Gamma', kind: 'internship', year: 2026 }] },
     { profile: { ...mk('C', 3, 'submitted'), show_headshot: true, show_name_on_placements: true }, placements: [{ firm: 'Sample Firm Four', team: null, kind: 'full_time', year: 2026 }, { firm: 'Sample Firm Five', team: 'Sample Group Alpha', kind: 'internship', year: 2025 }] },
@@ -27,7 +27,7 @@ export function createDemoApi(): Api {
     configured: true,
     async getSession() { return { userId: 'demo-user', email: 'sample.member.a@umich.edu' }; },
     async signIn() {}, async signOut() {},
-    async access() { return isAdmin ? 'admin' : 'member'; },
+    async access() { return isAdmin ? 'admin' : 'applicant'; },
     headshotUrl: (p) => p,
     async getMyProfile() { return { profile: me, placements: myPlacements, boardTitle: 'Vice President of Education' }; },
     async saveProfile(_u, _e, input, status, placements) {
@@ -44,6 +44,7 @@ export function createDemoApi(): Api {
     async listSubmitted() { return [...queue]; },
     async listPublished() { return published.map((p) => ({ ...p })); },
     async unpublishProfile(id) { await wait(); published = published.filter((p) => p.id !== id); },
+    async adminDeleteProfile(id) { await wait(); queue = queue.filter((q) => q.profile.id !== id); published = published.filter((p) => p.id !== id); },
     async approve(id) { await wait(); queue = queue.filter((q) => q.profile.id !== id); },
     async requestChanges(id) { await wait(); queue = queue.filter((q) => q.profile.id !== id); },
     async listBoard() { return board.map((b) => ({ ...b })); },
