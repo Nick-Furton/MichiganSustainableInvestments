@@ -316,6 +316,7 @@ async function supabaseBuild() {
     ok(!existsSync(join(dir, 'headshots', `${ID2}.webp`)), 'supabase', 'failed headshot must not be shipped');
     const team = readFileSync(join(dir, 'board/index.html'), 'utf8');
     ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Board page lacks mock data');
+    ok(team.includes('Mock Major') && !team.includes('Mock School'), 'supabase', 'profiles must show the major and never the school');
     const imgTag = (team.match(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*>`)) || [''])[0];
     ok(/width="1000"/.test(imgTag) && /height="1000"/.test(imgTag), 'supabase', 'headshot img must carry the real width and height');
     ok(imgTag.includes(`/headshots/${ID1}-600.webp 600w`) && imgTag.includes(`/headshots/${ID1}.webp 1000w`) && /sizes="/.test(imgTag), 'supabase', 'headshot img must offer the 600px copy');

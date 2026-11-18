@@ -70,7 +70,6 @@ const STATUS_TEXT: Record<string, string> = { draft: 'Draft', submitted: 'Waitin
     profile = p;
     f('full_name').value = p?.full_name ?? '';
     f('class_year').value = p?.class_year ? String(p.class_year) : '';
-    f('school').value = p?.school ?? '';
     f('major').value = p?.major ?? '';
     f('linkedin_url').value = p?.linkedin_url ?? '';
     f('bio').value = p?.bio ?? '';
@@ -136,7 +135,7 @@ const STATUS_TEXT: Record<string, string> = { draft: 'Draft', submitted: 'Waitin
       if (empty) ok = false;
     };
     need('full_name', 'Full name');
-    if (forSubmit) { need('class_year', 'Class year'); need('school', 'School'); need('major', 'Major'); }
+    if (forSubmit) { need('class_year', 'Class year'); need('major', 'Major'); }
     const yr = f('class_year').value.trim();
     if (yr && (!/^\d{4}$/.test(yr) || +yr < 2015 || +yr > 2040)) { setErr('class_year', 'Enter a year from 2015 to 2040.'); ok = false; } else setErr('class_year', '');
     const li = f('linkedin_url').value.trim();
@@ -156,7 +155,7 @@ const STATUS_TEXT: Record<string, string> = { draft: 'Draft', submitted: 'Waitin
     return {
       full_name: f('full_name').value.trim(),
       class_year: yr ? Number(yr) : null,
-      school: f('school').value.trim() || null,
+      school: null, // no longer collected or shown
       major: f('major').value.trim() || null,
       linkedin_url: li || null,
       headshot_path: profile?.headshot_path ?? null,

@@ -102,7 +102,7 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
         const plist = el('ul', {}, ...placements.map((x) => el('li', {}, `${x.firm}${x.team ? ', ' + x.team : ''} · ${x.kind === 'internship' ? 'Internship' : 'Full-time'}${x.year ? ' · ' + x.year : ''}`)));
         box.append(el('article', { className: 'review-card' },
           head,
-          el('div', {}, [p.class_year, p.school, p.major].filter(Boolean).join(' · ')),
+          el('div', {}, [p.class_year, p.major].filter(Boolean).join(' · ')),
           p.linkedin_url ? el('div', {}, p.linkedin_url) : '',
           p.bio ? el('p', { className: 'small' }, p.bio) : '',
           placements.length ? plist : '',

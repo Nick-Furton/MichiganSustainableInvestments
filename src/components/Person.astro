@@ -9,7 +9,8 @@ const bgs = ['#0b1f3a', '#14315a', '#1d3f6e', '#243a52'];
 const w = p.headshot_width ?? 800;
 const srcset = p.headshot_url && p.headshot_small_url ? `${url(p.headshot_small_url)} 600w, ${url(p.headshot_url)} ${w}w` : undefined;
 const sizes = srcset ? (small ? '(max-width: 700px) 46vw, 280px' : '(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 420px') : undefined;
-const meta = [p.class_year ? `Class of ${p.class_year}` : '', [p.school, p.major].filter(Boolean).join(', ')].filter(Boolean);
+// The school is not shown: class year and major only.
+const meta = [p.class_year ? `Class of ${p.class_year}` : '', p.major ?? ''].filter(Boolean);
 ---
 <article class:list={['person', { 'person-small': small }]}>
   <div class="person-photo">
