@@ -285,7 +285,7 @@ async function supabaseBuild() {
       if (mode === 'fail') { res.statusCode = 500; return res.end('boom'); }
       return json([
         { profile_id: ID1, full_name: 'Mock Board Person', class_year: 2027, school: 'Mock School', major: 'Mock Major', linkedin_url: 'https://www.linkedin.com/in/mock-person', headshot_path: `${ID1}/abc123.webp`, board_title: 'Mock President', sort_order: 1 },
-        { profile_id: ID3, full_name: 'Mock Safari Person', class_year: 2028, school: null, major: null, linkedin_url: null, headshot_path: `${ID3}/fromsafari.webp`, board_title: null, sort_order: null },
+        { profile_id: ID3, full_name: 'Mock Safari Person', class_year: 2028, school: null, major: 'Mock School of Testing, Mock Second Major', linkedin_url: null, headshot_path: `${ID3}/fromsafari.webp`, board_title: null, sort_order: null },
         { profile_id: ID2, full_name: 'Mock Member Two', class_year: 2028, school: null, major: null, linkedin_url: null, headshot_path: `${ID2}/broken.webp`, board_title: null, sort_order: null },
       ]);
     }
@@ -317,6 +317,7 @@ async function supabaseBuild() {
     const team = readFileSync(join(dir, 'board/index.html'), 'utf8');
     ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Board page lacks mock data');
     ok(team.includes('Mock Major') && !team.includes('Mock School'), 'supabase', 'profiles must show the major and never the school');
+    ok(team.includes('Mock Second Major') && !team.includes('Mock School of Testing'), 'supabase', 'a school typed into the major box must be dropped');
     const imgTag = (team.match(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*>`)) || [''])[0];
     ok(/width="1000"/.test(imgTag) && /height="1000"/.test(imgTag), 'supabase', 'headshot img must carry the real width and height');
     ok(imgTag.includes(`/headshots/${ID1}-600.webp 600w`) && imgTag.includes(`/headshots/${ID1}.webp 1000w`) && /sizes="/.test(imgTag), 'supabase', 'headshot img must offer the 600px copy');

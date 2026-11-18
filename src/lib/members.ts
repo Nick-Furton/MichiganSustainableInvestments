@@ -33,6 +33,15 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Headshots are downloaded by scripts/prebuild.mjs into public/headshots/ and listed in .cache/headshots.json.
+// Profiles show the major only. Members sometimes type their school in front of it
+// ("Ross School of Business, Finance"), so comma-separated parts that name a school or college are dropped.
+export function cleanMajor(major: string | null | undefined): string | null {
+  if (!major) return null;
+  const parts = major.split(',').map((s) => s.trim()).filter(Boolean);
+  const kept = parts.filter((s) => !/\b(school|college)\b/i.test(s));
+  return (kept.length ? kept : parts).join(', ') || null;
+}
+
 type Shot = { src: string; width: number | null; small: string | null };
 function headshotManifest(): Record<string, Shot> {
   try { return JSON.parse(readFileSync(join(process.cwd(), '.cache/headshots.json'), 'utf8')); } catch { return {}; }
@@ -65,7 +74,7 @@ async function load(): Promise<MembersData> {
     full_name: r.full_name,
     class_year: r.class_year ?? null,
     school: r.school ?? null,
-    major: r.major ?? null,
+    major: cleanMajor(r.major),
     linkedin_url: r.linkedin_url ?? null,
     headshot_url: shots[r.profile_id]?.src ?? null,  // site-relative path, e.g. headshots/<id>.webp
     headshot_small_url: shots[r.profile_id]?.small ?? null,
