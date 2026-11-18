@@ -17,6 +17,8 @@ language sql stable security invoker set search_path = public, pg_temp as $$
   select count(*)::int from storage.objects
    where bucket_id = 'headshots' and (storage.foldername(name))[1] = auth.uid()::text;
 $$;
+-- Only signed-in people need this; take it away from anonymous visitors (it would only ever return 0 for them).
+revoke all on function public.my_headshot_count() from public, anon;
 grant execute on function public.my_headshot_count() to authenticated;
 
 drop policy if exists headshots_own_insert on storage.objects;
