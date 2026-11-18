@@ -130,7 +130,9 @@ strong { color: var(--ink); font-weight: 600; }
 @media (min-width: 1561px) { .logo-word span { display: inline; } }
 
 /* Hero */
-.hero { padding-block: clamp(40px, 6vw, 88px) clamp(48px, 7vw, 96px); }
+.hero { padding-block: clamp(40px, 6vw, 88px) clamp(16px, 2.5vw, 32px); }
+/* The section right after the hero sits close to it: no band separates them. */
+.hero + .section { padding-top: clamp(32px, 4vw, 56px); }
 .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(32px, 6vw, 96px); align-items: center; }
 .hero-text .lead { margin: 28px 0 32px; }
 .hero-note { margin-top: 20px; font-size: 16px; color: var(--ink); }
