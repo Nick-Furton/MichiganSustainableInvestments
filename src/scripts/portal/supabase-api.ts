@@ -64,7 +64,7 @@ export function createSupabaseApi(): Api {
       if (newHeadshot) {
         const rand = crypto.randomUUID().replace(/-/g, '');
         uploaded = `${userId}/${rand}.webp`;
-        const up = await sb().storage.from('headshots').upload(uploaded, newHeadshot, { contentType: 'image/webp', upsert: false });
+        const up = await sb().storage.from('headshots').upload(uploaded, newHeadshot, { contentType: newHeadshot.type || 'image/webp', upsert: false });
         if (up.error) throw new Error(up.error.message);
         headshot_path = uploaded;
       }

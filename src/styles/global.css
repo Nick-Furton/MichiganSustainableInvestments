@@ -290,6 +290,8 @@ legend { padding: 0 8px; font-weight: 600; color: var(--ink); }
 .table th { font-size: 14px; letter-spacing: .04em; text-transform: uppercase; color: var(--body); }
 .review-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; display: grid; gap: 14px; color: var(--ink); }
 .review-card .head { display: flex; gap: 16px; align-items: center; }
+.headshot-row .headshot-preview { width: 168px; height: 168px; }
+#headshot-pos { width: min(100%, 360px); accent-color: var(--navy, #0b1f3a); }
 .review-card .headshot-preview { width: 80px; height: 80px; }
 .review-card ul { margin: 0; }
 .tag { display: inline-block; font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--bg); margin: 0 6px 6px 0; }

@@ -1,5 +1,5 @@
 import { getApi, showState, $, $$, setMessage, errText, UMICH } from './common';
-import { processHeadshot } from './image';
+import { processHeadshot, defaultPosition } from './image';
 import type { Profile, Placement, ProfileInput } from './types';
 
 const LINKEDIN = /^https:\/\/www\.linkedin\.com\/in\/[^\s/?#]+\/?$/;
@@ -87,21 +87,39 @@ const STATUS_TEXT: Record<string, string> = { draft: 'Draft', submitted: 'Waitin
   f('bio').addEventListener('input', count);
 
   // Headshot: crop, resize and re-encode in the browser before anything is uploaded.
-  f('headshot').addEventListener('change', async () => {
-    const file = (f('headshot') as HTMLInputElement).files?.[0];
-    setErr('headshot', '');
-    if (!file) return;
+  // The member can move the square frame with the "Photo position" slider (shown for photos that are not square).
+  let pickedFile: File | null = null;
+  let renderSeq = 0;
+  const posRow = $('#headshot-pos-row')!;
+  const posInput = $<HTMLInputElement>('#headshot-pos')!;
+  const clearPicked = () => { pickedFile = null; posRow.hidden = true; };
+  async function renderHeadshot(position?: number) {
+    if (!pickedFile) return;
+    const seq = ++renderSeq;
     try {
-      newHeadshot = await processHeadshot(file);
+      const { blob, shape } = await processHeadshot(pickedFile, position);
+      if (seq !== renderSeq) return; // a newer slider move has replaced this one
+      newHeadshot = blob;
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-      previewUrl = URL.createObjectURL(newHeadshot);
+      previewUrl = URL.createObjectURL(blob);
       setPreview(previewUrl);
+      posRow.hidden = shape === 'square';
+      if (position === undefined) posInput.value = String(Math.round(defaultPosition(shape) * 100));
     } catch (e) {
       newHeadshot = null;
+      clearPicked();
       (f('headshot') as HTMLInputElement).value = '';
       setErr('headshot', errText(e));
     }
+  }
+  f('headshot').addEventListener('change', () => {
+    pickedFile = (f('headshot') as HTMLInputElement).files?.[0] ?? null;
+    setErr('headshot', '');
+    if (pickedFile) void renderHeadshot(); else posRow.hidden = true;
   });
+  let posTimer = 0;
+  posInput.addEventListener('input', () => { window.clearTimeout(posTimer); posTimer = window.setTimeout(() => void renderHeadshot(Number(posInput.value) / 100), 150); });
+  posInput.addEventListener('change', () => { window.clearTimeout(posTimer); void renderHeadshot(Number(posInput.value) / 100); });
 
   function setErr(name: string, text: string) {
     const el = $(`[data-err=${name}]`);
@@ -159,6 +177,7 @@ const STATUS_TEXT: Record<string, string> = { draft: 'Draft', submitted: 'Waitin
     try {
       profile = await api!.saveProfile(session!.userId, profile, input, status, readPlacements(), newHeadshot);
       newHeadshot = null;
+      clearPicked();
       (f('headshot') as HTMLInputElement).value = '';
       const d = await api!.getMyProfile(session!.userId);
       fill(d.profile, d.placements, d.boardTitle);

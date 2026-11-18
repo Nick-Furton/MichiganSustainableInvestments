@@ -10,6 +10,8 @@ export type PublicProfile = {
   major: string | null;
   linkedin_url: string | null;
   headshot_url: string | null;
+  headshot_small_url?: string | null; // 600px copy for ordinary screens, when one was made
+  headshot_width?: number | null;     // pixel width of the full photo
   board_title: string | null;
   sort_order: number | null;
 };
@@ -31,7 +33,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // Headshots are downloaded by scripts/prebuild.mjs into public/headshots/ and listed in .cache/headshots.json.
-function headshotManifest(): Record<string, string> {
+type Shot = { src: string; width: number | null; small: string | null };
+function headshotManifest(): Record<string, Shot> {
   try { return JSON.parse(readFileSync(join(process.cwd(), '.cache/headshots.json'), 'utf8')); } catch { return {}; }
 }
 
@@ -64,7 +67,9 @@ async function load(): Promise<MembersData> {
     school: r.school ?? null,
     major: r.major ?? null,
     linkedin_url: r.linkedin_url ?? null,
-    headshot_url: shots[r.profile_id] ?? null,  // site-relative path, e.g. headshots/<id>.webp
+    headshot_url: shots[r.profile_id]?.src ?? null,  // site-relative path, e.g. headshots/<id>.webp
+    headshot_small_url: shots[r.profile_id]?.small ?? null,
+    headshot_width: shots[r.profile_id]?.width ?? null,
     board_title: r.board_title ?? null,
     sort_order: r.sort_order ?? null,
   }));

@@ -35,10 +35,15 @@ import { url } from '../../lib/url';
           <div class="field">
             <label for="headshot">Headshot</label>
             <div class="headshot-row">
-              <img id="headshot-preview" class="headshot-preview" alt="Headshot preview" width="120" height="120" hidden />
-              <input type="file" id="headshot" name="headshot" accept="image/jpeg,image/png,image/webp" />
+              <img id="headshot-preview" class="headshot-preview" alt="Headshot preview" width="168" height="168" hidden />
+              <input type="file" id="headshot" name="headshot" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" />
             </div>
-            <span class="hint">JPEG, PNG or WebP, up to 10 MB.</span><span class="err" data-err="headshot" role="alert"></span>
+            <span class="hint">JPEG, PNG, WebP or HEIC, up to 50 MB.</span><span class="err" data-err="headshot" role="alert"></span>
+          </div>
+          <div class="field" id="headshot-pos-row" hidden>
+            <label for="headshot-pos">Photo position</label>
+            <input type="range" id="headshot-pos" min="0" max="100" step="1" value="0" />
+            <span class="hint">Move the slider if part of your head is cut off.</span>
           </div>
           <div class="field"><label for="bio">Short bio</label><textarea id="bio" name="bio" maxlength="400"></textarea><span class="hint" id="bio-count">0 / 400</span><span class="err" data-err="bio" role="alert"></span></div>
           <fieldset>

@@ -226,11 +226,55 @@ async function a11y(prodDir, sampleDir) {
   await browser.close();
 }
 
+// ---------- Headshot crop in the browser (profile demo, sample build) ----------
+async function headshotCrop(sampleDir) {
+  console.log('\n== headshot crop (profile demo) ==');
+  // A tall test photo: top half red, bottom half blue.
+  const blue = await sharp({ create: { width: 600, height: 600, channels: 3, background: '#0000ff' } }).png().toBuffer();
+  const tall = await sharp({ create: { width: 600, height: 1200, channels: 3, background: '#ff0000' } }).composite([{ input: blue, top: 600, left: 0 }]).png().toBuffer();
+  const big = await sharp({ create: { width: 3000, height: 3000, channels: 3, background: '#228855' } }).jpeg().toBuffer();
+  const site = await serve(sampleDir);
+  const browser = await loadPlaywright().chromium.launch();
+  try {
+    const page = await browser.newPage();
+    await page.goto(site.origin + '/members/profile/?demo=1', { waitUntil: 'networkidle' });
+    await page.waitForSelector('[data-state=ready]:not([hidden])');
+    const fresh = (prev) => page.waitForFunction((p) => { const i = document.querySelector('#headshot-preview'); return !!i && i.src.startsWith('blob:') && i.src !== p && i.complete && i.naturalWidth > 0; }, prev);
+    const sample = () => page.evaluate(async () => {
+      const img = document.querySelector('#headshot-preview');
+      const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+      const px = (y) => Array.from(x.getImageData(Math.floor(c.width / 2), y, 1, 1).data.slice(0, 3));
+      const blob = await (await fetch(img.src)).blob();
+      return { w: c.width, h: c.height, top: px(4), bottom: px(c.height - 5), type: blob.type, bytes: blob.size, src: img.src };
+    });
+    const isRed = (p) => p[0] > 180 && p[2] < 80, isBlue = (p) => p[2] > 180 && p[0] < 80;
+    await page.setInputFiles('#headshot', { name: 'tall.png', mimeType: 'image/png', buffer: tall });
+    await fresh('');
+    const a = await sample();
+    ok(a.w === 600 && a.h === 600, 'crop', `a 600px-wide photo must stay 600px, got ${a.w}x${a.h}`);
+    ok(isRed(a.top) && isRed(a.bottom), 'crop', 'a tall photo must be cropped from the top by default');
+    ok(a.type === 'image/webp' && a.bytes <= 1024 * 1024, 'crop', `stored photo must be WebP under 1 MB, got ${a.type} ${a.bytes}`);
+    ok(await page.isVisible('#headshot-pos-row'), 'crop', 'the position slider must appear for a tall photo');
+    await page.evaluate(() => { const s = document.querySelector('#headshot-pos'); s.value = '100'; s.dispatchEvent(new Event('input', { bubbles: true })); s.dispatchEvent(new Event('change', { bubbles: true })); });
+    await fresh(a.src);
+    const b = await sample();
+    ok(isBlue(b.top) && isBlue(b.bottom), 'crop', 'moving the slider to the end must show the bottom of the photo');
+    await page.setInputFiles('#headshot', { name: 'big.jpg', mimeType: 'image/jpeg', buffer: big });
+    await fresh(b.src);
+    const c = await sample();
+    ok(c.w === 1200 && c.h === 1200, 'crop', `a large photo must be stored at 1200px, got ${c.w}x${c.h}`);
+    ok(!(await page.isVisible('#headshot-pos-row')), 'crop', 'no position slider for a square photo');
+  } finally { await browser.close(); site.close(); }
+}
+
 // ---------- Supabase build path against a local mock server ----------
 async function supabaseBuild() {
   console.log('\n== supabase build path (mock server) ==');
-  const ID1 = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', ID2 = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
-  const webp = await sharp({ create: { width: 8, height: 8, channels: 3, background: '#336699' } }).webp().toBuffer();
+  const ID1 = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', ID2 = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', ID3 = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const webp = await sharp({ create: { width: 1000, height: 1000, channels: 3, background: '#336699' } }).webp().toBuffer();
+  // Safari uploads JPEG data under a name that still ends in .webp; the build must convert it.
+  const jpeg = await sharp({ create: { width: 900, height: 900, channels: 3, background: '#996633' } }).jpeg().toBuffer();
   const log = [];
   let mode = 'ok';
   const server = createServer((req, res) => {
@@ -241,6 +285,7 @@ async function supabaseBuild() {
       if (mode === 'fail') { res.statusCode = 500; return res.end('boom'); }
       return json([
         { profile_id: ID1, full_name: 'Mock Board Person', class_year: 2027, school: 'Mock School', major: 'Mock Major', linkedin_url: 'https://www.linkedin.com/in/mock-person', headshot_path: `${ID1}/abc123.webp`, board_title: 'Mock President', sort_order: 1 },
+        { profile_id: ID3, full_name: 'Mock Safari Person', class_year: 2028, school: null, major: null, linkedin_url: null, headshot_path: `${ID3}/fromsafari.webp`, board_title: null, sort_order: null },
         { profile_id: ID2, full_name: 'Mock Member Two', class_year: 2028, school: null, major: null, linkedin_url: null, headshot_path: `${ID2}/broken.webp`, board_title: null, sort_order: null },
       ]);
     }
@@ -249,6 +294,7 @@ async function supabaseBuild() {
       { firm: 'Mock Firm Two', team: null, kind: 'full_time', year: 2025, member_name: null, class_year: null },
     ]);
     if (path === `/storage/v1/object/public/headshots/${ID1}/abc123.webp`) { res.setHeader('content-type', 'image/webp'); return res.end(webp); }
+    if (path === `/storage/v1/object/public/headshots/${ID3}/fromsafari.webp`) { res.setHeader('content-type', 'image/jpeg'); return res.end(jpeg); }
     res.statusCode = 404; res.end('not found');
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -261,7 +307,7 @@ async function supabaseBuild() {
     ok(bad.status !== 0, 'supabase', 'prebuild must fail when the REST fetch fails');
     mode = 'ok';
     const pre = await run('node', ['scripts/prebuild.mjs'], { ...process.env, ...env });
-    ok(pre.status === 0 && /1 headshot/.test(pre.stdout), 'supabase', 'prebuild should download exactly one headshot');
+    ok(pre.status === 0 && /2 headshot/.test(pre.stdout), 'supabase', 'prebuild should download exactly two headshots (one WebP, one JPEG from Safari)');
     ok(new RegExp(`WARNING headshot for ${ID2}`).test(pre.stderr), 'supabase', 'a failed image download should print a warning');
     const dir = await build('supabase', env);
     if (!dir) return;
@@ -270,7 +316,12 @@ async function supabaseBuild() {
     ok(!existsSync(join(dir, 'headshots', `${ID2}.webp`)), 'supabase', 'failed headshot must not be shipped');
     const team = readFileSync(join(dir, 'board/index.html'), 'utf8');
     ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Board page lacks mock data');
-    ok(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*width="800"[^>]*height="800"|<img[^>]*width="800"[^>]*height="800"[^>]*src="/headshots/${ID1}\\.webp"`).test(team), 'supabase', 'headshot img with width/height missing');
+    const imgTag = (team.match(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*>`)) || [''])[0];
+    ok(/width="1000"/.test(imgTag) && /height="1000"/.test(imgTag), 'supabase', 'headshot img must carry the real width and height');
+    ok(imgTag.includes(`/headshots/${ID1}-600.webp 600w`) && imgTag.includes(`/headshots/${ID1}.webp 1000w`) && /sizes="/.test(imgTag), 'supabase', 'headshot img must offer the 600px copy');
+    ok(existsSync(join(dir, 'headshots', `${ID1}-600.webp`)), 'supabase', '600px headshot copy missing from dist');
+    const safari = existsSync(join(dir, 'headshots', `${ID3}.webp`)) ? readFileSync(join(dir, 'headshots', `${ID3}.webp`)) : Buffer.alloc(12);
+    ok(safari.subarray(0, 4).toString() === 'RIFF' && safari.subarray(8, 12).toString() === 'WEBP', 'supabase', 'a JPEG upload must be converted to WebP at build time');
     ok(/Initials avatar for Mock Member Two/.test(team), 'supabase', 'failed headshot should fall back to the initials avatar');
     ok(/"@type":"Person"/.test(team) && /"jobTitle":"Mock President"/.test(team), 'supabase', 'Person JSON-LD missing');
     const pl = readFileSync(join(dir, 'placements/index.html'), 'utf8');
@@ -365,6 +416,7 @@ if (based) checkVariant('base-path /msi-site/', based, { base: '/msi-site/' });
 const sampled = await build('sample', { SAMPLE_DATA: '1', SEARCH_VISIBLE: '1' });
 if (sampled) checkVariant('sample data', sampled, { sample: true });
 if (prod && sampled) await a11y(prod, sampled);
+if (sampled) await headshotCrop(sampled);
 // Soft launch: with the search switch off, every page must ask search engines not to list it.
 const soft = await build('soft', { SEARCH_VISIBLE: '0' });
 if (soft) {

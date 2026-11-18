@@ -6,12 +6,15 @@ const { p, small = false } = Astro.props;
 const initials = p.full_name.split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const hue = [...p.full_name].reduce((a, c) => a + c.charCodeAt(0), 0) % 4;
 const bgs = ['#0b1f3a', '#14315a', '#1d3f6e', '#243a52'];
+const w = p.headshot_width ?? 800;
+const srcset = p.headshot_url && p.headshot_small_url ? `${url(p.headshot_small_url)} 600w, ${url(p.headshot_url)} ${w}w` : undefined;
+const sizes = srcset ? (small ? '(max-width: 700px) 46vw, 280px' : '(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 420px') : undefined;
 const meta = [p.class_year ? `Class of ${p.class_year}` : '', [p.school, p.major].filter(Boolean).join(', ')].filter(Boolean);
 ---
 <article class:list={['person', { 'person-small': small }]}>
   <div class="person-photo">
     {p.headshot_url
-      ? <img src={url(p.headshot_url)} alt={`Headshot of ${p.full_name}`} width="800" height="800" loading="lazy" decoding="async" />
+      ? <img src={url(p.headshot_url)} srcset={srcset} sizes={sizes} alt={`Headshot of ${p.full_name}`} width={w} height={w} loading="lazy" decoding="async" />
       : <svg viewBox="0 0 200 200" role="img" aria-label={`Initials avatar for ${p.full_name}`}><rect width="200" height="200" fill={bgs[hue]} /><text x="100" y="118" text-anchor="middle" font-family="Inter Variable, Inter, Arial, sans-serif" font-size="72" font-weight="600" fill="#ffcb05">{initials}</text></svg>}
   </div>
   <div class="person-body">
