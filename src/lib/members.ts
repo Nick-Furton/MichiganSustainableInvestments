@@ -1,4 +1,4 @@
-// Build-time loader for the Team and Placements data.
+// Build-time loader for the Board and Placements data.
 // Source: the two public Supabase views (anon key, plain fetch), or sample-profiles.json when SAMPLE_DATA=1.
 // This file runs only at build time (it is also loaded by astro.config.mjs), so it reads process.env directly.
 

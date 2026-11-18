@@ -5,17 +5,14 @@ import Person from '../components/Person.astro';
 import PlacementList from '../components/PlacementList.astro';
 import hero from '../assets/placeholder/presenting-hero.jpg';
 import { url } from '../lib/url';
-import { club, numberWord, cap } from '../data/club';
+import { club, numberWord, cap, selectivitySentence } from '../data/club';
 import { loadMembers } from '../lib/members';
 
 const m = await loadMembers();
 const board = m.profiles.filter((p) => p.board_title).slice(0, 6);
 const places = m.placements.slice(0, 8);
 const sym = club.symposium;
-const facts = [
-  { num: String(club.founded), text: `Founded at the ${club.university}` },
-  { num: String(sym.count), text: `Annual symposia hosted, ${sym.firstYear} to ${sym.lastYear}` },
-];
+const selectivity = selectivitySentence();
 const photoAlt = 'A presenter in a dark suit points to a slide while an audience looks on.';
 ---
 <Base
@@ -28,7 +25,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
       <div class="hero-text">
         <p class="eyebrow">University of Michigan · Founded 2019</p>
         <h1>Michigan's <span class="hl">sustainable investing</span> club</h1>
-        <p class="lead">Michigan Sustainable Investments (MSI) is a student-run club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.</p>
+        <p class="lead">Michigan Sustainable Investments (MSI) is a student-run finance club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact, and prepare for careers in investment banking, asset management and impact investing. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.</p>
         <div class="btn-row">
           <a class="btn btn-outline" href={url('join/')}>Apply</a>
           <a class="btn btn-dark" href={url('program/')}>See the program</a>
@@ -38,12 +35,6 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
       <figure class="hero-photo">
         <Picture src={hero} alt={photoAlt} formats={['avif', 'webp']} widths={[480, 720, 960, 1200]} sizes="(max-width: 900px) 100vw, 46vw" loading="eager" fetchpriority="high" decoding="async" />
       </figure>
-    </div>
-  </section>
-
-  <section class="band-white" aria-label="Key facts">
-    <div class="wrap facts">
-      {facts.map((f) => <div class="fact reveal"><span class="fact-num">{f.num}</span><span class="fact-text">{f.text}</span></div>)}
     </div>
   </section>
 
@@ -59,7 +50,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
         <div class="card reveal"><span class="marker"></span><h3>Professional development</h3><p>Sessions prepare members for finance recruiting, from résumés to interviews.</p></div>
         <div class="card reveal"><span class="marker"></span><h3>Speakers and the Symposium</h3><p>{`The club hosts investors and operators on campus. ${cap(numberWord(sym.count))} symposia have been held since ${sym.firstYear}.`}</p></div>
       </div>
-      <p style="margin-top:28px"><a class="arrow-link" href={url('program/')}>Read about the program →</a></p>
+      <p class="link-row"><a class="arrow-link" href={url('program/')}>Read about the program →</a> <a class="arrow-link" href={url('sustainable-investing/')}>The five kinds of investment members study →</a></p>
     </div>
   </section>
 
@@ -101,7 +92,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
       <div class="wrap">
         <div class="section-head reveal"><h2>Leadership</h2><p>The executive board.</p></div>
         <div class="grid-3">{board.map((p) => <Person p={p} />)}</div>
-        <p style="margin-top:28px"><a class="arrow-link" href={url('team/')}>Meet the team →</a></p>
+        <p style="margin-top:28px"><a class="arrow-link" href={url('board/')}>Meet the board →</a></p>
       </div>
     </section>
   )}
@@ -119,7 +110,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
   <section class="section-tight" style="padding-bottom:clamp(40px,6vw,80px)">
     <div class="wrap">
       <div class="cta-band reveal on-dark">
-        <div><h2>Join MSI</h2><p>Membership is by application. Dates for the next cycle are posted on the Join page.</p></div>
+        <div><h2>Join MSI</h2><p>Membership is by application. Dates for the next cycle are posted on the Join page.</p>{selectivity && <p>{selectivity}</p>}</div>
         <div class="btn-row"><a class="btn btn-maize" href={url('join/')}>How to apply</a></div>
       </div>
     </div>

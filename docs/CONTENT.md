@@ -17,8 +17,8 @@ Facts live in ONE file (`src/data/club.ts`) so the board can change them without
 
 - Site name: `Michigan Sustainable Investments`
 - Descriptor: `The sustainable investing club at the University of Michigan.`
-- Nav: Home · About · Program · Team* · Placements* · Join · For employers — plus button `Member sign-in`.
-  (*Team and Placements appear in the nav only when at least one approved entry exists.)
+- Nav: Home · Sustainable investing · Program · Board · Placements* · Join · For employers — plus buttons `Member sign-in` and `Apply`.
+  (*Placements appears in the nav only when at least one approved entry exists. Board is always shown.)
 - Footer disclaimer (every page): `Michigan Sustainable Investments is a student organization at the University of Michigan. It is not an official unit of the University and does not speak for it. Nothing on this site is investment advice.`
 - Footer history line: `Founded in 2019 as the Michigan Impact Investing Symposium.`
 - Footer links: all nav pages, `Résumé and LinkedIn guide`, `Privacy`.
@@ -30,21 +30,16 @@ Facts live in ONE file (`src/data/club.ts`) so the board can change them without
 - Description: `Michigan Sustainable Investments (MSI) is the student-run sustainable investing club at the University of Michigan. Founded in 2019. Membership by application.`
 - Eyebrow: `University of Michigan · Founded 2019`
 - H1: `Michigan's sustainable investing club`
-- Lead: `Michigan Sustainable Investments (MSI) is a student-run club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.`
+- Lead: `Michigan Sustainable Investments (MSI) is a student-run finance club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact, and prepare for careers in investment banking, asset management and impact investing. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.`
 - Buttons: `Apply` → /join · `See the program` → /program. Small link under them: `Members: sign in to update your profile →` → /members
 - Hero photo: placeholder `presenting-hero.jpg` (portrait, right side).
-
-**Facts strip** (two items, big number + one line each; design it to look intentional with two)
-- `2019` — `Founded at the University of Michigan`
-- `5` — `Annual symposia hosted, 2019 to 2024`
-(The site never states how many members the club has. Do not add a member count anywhere.)
 
 **H2: What members do** — intro: `The program has four parts.`
 1. `Investing education` — `Modules teach how investors evaluate a deal for financial return and for impact. Topics run from public equities and green bonds to venture capital and microfinance.`
 2. `Hands-on projects` — `Members apply the material in team projects and present their conclusions.` [CONFIRM]
 3. `Professional development` — `Sessions prepare members for finance recruiting, from résumés to interviews.` [CONFIRM]
 4. `Speakers and the Symposium` — `The club hosts investors and operators on campus. Five symposia have been held since 2019.`
-Link: `Read about the program →` → /program
+Links: `Read about the program →` → /program · `The five kinds of investment members study →` → /sustainable-investing/
 
 **H2: Sustainable finance is a way into banking**
 - Paragraph: `Banks, asset managers and funds now staff teams built around the energy transition. MSI members study the instruments those teams use: green bonds, public equities, clean-energy project finance and venture capital.`
@@ -61,34 +56,11 @@ Link: `Read about the program →` → /program
 - Plain-text list (no logos): `Goldman Sachs` · `Pfizer` · `Orrick` · `Impact Engine` · `Total Impact Capital`
 - Small note: `Affiliations as listed in symposium programs. Naming a firm does not imply sponsorship or endorsement.`
 
-**H2: Leadership** (only when approved board profiles exist) — line: `The executive board.` — up to 6 cards — link `Meet the team →`
+**H2: Leadership** (only when approved board profiles exist) — line: `The executive board.` — up to 6 cards — link `Meet the board →` → /board/
 
 **H2: Where members go** (only when approved placements exist) — line: `Offers accepted by members, self-reported.` — up to 8 entries — link `All placements →`
 
-**Closing band — H2: Join MSI** — `Membership is by application. Dates for the next cycle are posted on the Join page.` — button `How to apply` → /join
-
-## About (`/about`)
-
-- Title: `About | Michigan Sustainable Investments`
-- Description: `Michigan Sustainable Investments (MSI) was founded in 2019 as the Michigan Impact Investing Symposium. History, mission and key facts about the club.`
-- H1: `About Michigan Sustainable Investments`
-- Lead: `Michigan Sustainable Investments (MSI) is the sustainable investing club at the University of Michigan. It was founded in 2019 and is run entirely by students.`
-- H2 `What we do` — `MSI teaches undergraduates how capital is allocated when return and impact both count. Members study public equities, green bonds, venture capital, microfinance and clean-energy finance. They hear directly from people who invest for a living.`
-- H2 `Mission` — `To train Michigan students to invest for financial return and for environmental and social impact.` [CONFIRM]
-- H2 `History` (timeline)
-  - `2019` — `Students found the Michigan Impact Investing Symposium. The first symposium is held on April 13, 2019, in Ann Arbor.`
-  - `2021 to 2023` — `The symposium returns each year with speakers from investment firms, law firms and companies.`
-  - `April 2024` — `The fifth annual symposium is held at the Ross School of Business.`
-  - `2024` — `The club takes the name Michigan Sustainable Investments and expands from one annual event to a year-round program.` [CONFIRM]
-- H2 `At a glance` (definition list, plain HTML)
-  - Name: `Michigan Sustainable Investments (MSI)`
-  - Founded: `2019`
-  - Formerly: `Michigan Impact Investing Symposium (MIIS)`
-  - Type: `Student organization at the University of Michigan, Ann Arbor`
-  - Focus: `Sustainable and impact investing`
-  - Membership: `By application`
-  - Dues: `$25 per semester` [CONFIRM]
-- H2 `What "sustainable investing" means here` — `Sustainable investing weighs environmental and social outcomes alongside financial return. Impact investing goes a step further and targets a measurable outcome. MSI covers both.`
+**Closing band — H2: Join MSI** — `Membership is by application. Dates for the next cycle are posted on the Join page.` — button `How to apply` → /join. When selectivity is set in `club.ts`, a line under it: `In {term}, {applied} students applied and {admitted} were admitted.` (hidden otherwise)
 
 ## Program (`/program`)
 
@@ -108,15 +80,23 @@ Link: `Read about the program →` → /program
   - `Impact investing and venture capital.` `Funds that back companies with a measurable social or environmental goal.`
 - When placements exist: link `See where members have gone →` → /placements
 
-## Team (`/team`)
+## Board (`/board`)
 
-- Title: `Team | Michigan Sustainable Investments`
-- Description: `The executive board and members of Michigan Sustainable Investments (MSI) at the University of Michigan.`
-- H1: `Team`
-- Lead: `MSI is run by its executive board. Members write their own profiles, and the board approves each one before it appears here.`
-- H2 `Executive board` — cards: headshot, name, board title, class year, school/major, LinkedIn link. Board titles and order are set by an administrator, never by the member.
-- H2 `Members` — smaller cards, same fields without a title.
-- Empty state (no approved profiles): `Profiles for the current board are being added. Members can sign in to add theirs.` + link `Member sign-in →`
+- Title: `Board | Michigan Sustainable Investments`
+- Description: `The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan.`
+- H1: `Board`
+- Lead: `MSI is run by its executive board. Each member writes their own profile, and the board approves it before it appears here.`
+- Always in the nav and footer. H2 `Executive board`: approved profiles that have a board title, in display order. H2 `Members`: approved profiles without a title, only when there are any. Cards: headshot, name, board title, class year, school/major, LinkedIn link. Board titles and order are set by an administrator, never by the member.
+- Empty state (no approved profiles): `Board profiles are being added. Members can sign in to add theirs.` + link `Member sign-in →`. While empty the page is `noindex` and out of the sitemap.
+
+## Types of sustainable investment (`/sustainable-investing`)
+
+Second item in the nav (label `Sustainable investing`), also in the footer and llms.txt. The full copy is in `src/pages/sustainable-investing.astro`.
+
+- Title: `Types of sustainable investment | Michigan Sustainable Investments`
+- Description: `How five kinds of sustainable investment work and what each one finances: microfinance, impact venture capital, green bonds, ESG equities and clean-energy finance.`
+- H1: `Types of sustainable investment`. A short in-page list links to five H2 sections (`microfinance`, `impact-venture-capital`, `green-bonds`, `esg-equities`, `clean-energy-finance`). Each has four labelled parts: `How it works`, `How investors are paid`, `What it does`, `What members examine`. Microfinance and Green bonds also end with an `On record` line.
+- H2 `Where this leads` (link `See the careers MSI prepares members for →` → /program#careers) and H2 `Sources` (Nobel Prize 2006 summary, Green Bond Principles at ICMA, World Bank green bonds).
 
 ## Placements (`/placements`)
 
@@ -134,6 +114,7 @@ Link: `Read about the program →` → /program
 - Description: `How to join Michigan Sustainable Investments (MSI) at the University of Michigan. Membership is by application. Dates, dues and common questions.`
 - H1: `Join MSI`
 - Lead: `Membership is by application.`
+- Under the lead, when `selectivity` is set in `club.ts`: `In {term}, {applied} students applied and {admitted} were admitted.` (hidden otherwise)
 - Status block, driven by `club.ts`:
   - open: `Applications are open until {closes}.` + button `Apply now` → application link
   - scheduled: `Applications open {opens}.`
@@ -144,7 +125,7 @@ Link: `Read about the program →` → /program
   - `What was the Michigan Impact Investing Symposium?` — `It is the name the club was founded under in 2019. The club became Michigan Sustainable Investments in 2024. The symposium was held five times between 2019 and 2024.`
   - `How much are dues?` — `$25 per semester.` [CONFIRM]
   - `How do I apply?` — `Through the application posted on this page when a cycle opens.`
-  - `How do members get listed on the Team and Placements pages?` — `Members sign in with their University of Michigan account, fill in a profile and choose what to publish. The board approves each profile before it appears.`
+  - `How do members get listed on the Board and Placements pages?` — `Members sign in with their University of Michigan account, fill in a profile and choose what to publish. The board approves each profile before it appears.`
 
 ## For employers (`/employers`)
 
@@ -192,4 +173,4 @@ Link: `Read about the program →` → /program
 
 - Title: `Privacy | Michigan Sustainable Investments`
 - H1: `Privacy`
-- Plain statements: what is collected (name, umich email, class year, school, major, LinkedIn URL, headshot, bio, placements); why (to publish the Team and Placements pages and manage the roster); who sees it (the member and board administrators; the public only sees fields the member chose to publish, after board approval); where it is stored (the club's hosted database); sign-in (Google, limited to basic profile and email); deletion (members can delete their profile at any time from the profile page, which removes it from the next site update); contact (`{contactEmail}`).
+- Plain statements: what is collected (name, umich email, class year, school, major, LinkedIn URL, headshot, bio, placements); why (to publish the Board and Placements pages and manage the roster); who sees it (the member and board administrators; the public only sees fields the member chose to publish, after board approval); where it is stored (the club's hosted database); sign-in (Google, limited to basic profile and email); deletion (members can delete their profile at any time from the profile page, which removes it from the next site update); contact (`{contactEmail}`).

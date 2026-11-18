@@ -142,8 +142,18 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false }) {
   // Nav rules
   const home = htmlOf.get(join(dir, 'index.html'));
   const nav = /<nav class="nav"[\s\S]*?<\/nav>/.exec(home)[0];
-  const hasTeam = />Team</.test(nav), hasPl = />Placements</.test(nav);
-  ok(hasTeam === hasData && hasPl === hasData, name, hasData ? 'Team and Placements should be in the nav' : 'Team/Placements must be absent from the nav when empty');
+  const labels = [...nav.matchAll(/<li><a [^>]*>([^<]+)<\/a><\/li>/g)].map((m) => m[1]);
+  ok(labels.slice(0, 4).join('|') === 'Home|Sustainable investing|Program|Board', name, `nav order should start Home, Sustainable investing, Program, Board (got ${labels.join(', ')})`);
+  ok(labels.includes('Board') && labels.includes('Join') && labels.includes('For employers') && !labels.includes('About') && !labels.includes('Team'), name, 'nav must always have Board, no About or Team');
+  ok(labels.includes('Placements') === hasData, name, hasData ? 'Placements should be in the nav' : 'Placements must be absent from the nav when empty');
+  ok(!existsSync(join(dir, 'about')) && !existsSync(join(dir, 'team')), name, 'About and Team pages must not exist');
+  ok(existsSync(join(dir, 'board/index.html')) && existsSync(join(dir, 'sustainable-investing/index.html')), name, 'Board and Sustainable investing pages must exist');
+  const si = htmlOf.get(join(dir, 'sustainable-investing/index.html'));
+  ok([...si.matchAll(/<h2 id="([a-z-]+)">/g)].map((m) => m[1]).join(',') === 'microfinance,impact-venture-capital,green-bonds,esg-equities,clean-energy-finance', name, 'sustainable-investing sections/ids');
+  ok((si.match(/<dt>(How it works|How investors are paid|What it does|What members examine)<\/dt>/g) || []).length === 20 && (si.match(/On record/g) || []).length === 2, name, 'sustainable-investing: 5 x 4 labelled parts and 2 On record lines');
+  ok(/rel="noopener"/.test(si) && (si.match(/href="https:\/\/(www\.nobelprize\.org|www\.icmagroup\.org|treasury\.worldbank\.org)/g) || []).length === 3, name, 'sustainable-investing sources');
+  ok(!/Key facts|fact-num/.test(home), name, 'home facts strip must be gone');
+  ok(!/students applied/.test(home + htmlOf.get(join(dir, 'join/index.html'))), name, 'selectivity sentence must not show while empty');
   ok(hasData === /Where members go/.test(home) && hasData === />Leadership</.test(home), name, 'home Leadership / Where members go sections must match data');
   // JS bundles: demo code only in sample builds
   const js = walk(dir).filter((f) => f.endsWith('.js')).map((f) => readFileSync(f, 'utf8')).join('\n');
@@ -153,7 +163,8 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false }) {
   const sm = existsSync(join(dir, 'sitemap-0.xml')) ? readFileSync(join(dir, 'sitemap-0.xml'), 'utf8') : '';
   ok(sm.includes('/members/resume-guide/'), name, 'sitemap lacks resume guide');
   ok(!/\/members\/(profile|admin)?\/?<|\/members\/<|\/404/.test(sm), name, 'sitemap includes members area or 404');
-  ok(hasData ? sm.includes('/team/') : !sm.includes('/team/'), name, 'sitemap team entry should follow data');
+  ok(hasData ? sm.includes('/board/') : !sm.includes('/board/'), name, 'sitemap board entry should follow data');
+  ok(sm.includes('/sustainable-investing/') && !sm.includes('/about/') && !sm.includes('/team/'), name, 'sitemap: sustainable-investing in, about and team out');
   if (base !== '/') ok(sm.includes(base), name, 'sitemap lacks base path');
   ok(existsSync(join(dir, 'robots.txt')) && /Sitemap:/.test(readFileSync(join(dir, 'robots.txt'), 'utf8')), name, 'robots.txt with sitemap');
   const llms = readFileSync(join(dir, 'llms.txt'), 'utf8');
@@ -200,7 +211,7 @@ async function a11y(prodDir, sampleDir) {
   await run(prod.origin, '/join/', 390, 'prod /join/ @390');
   prod.close();
   const sample = await serve(sampleDir);
-  for (const p of ['/', '/team/', '/placements/']) await run(sample.origin, p, 1280, `sample ${p}`);
+  for (const p of ['/', '/board/', '/placements/', '/sustainable-investing/']) await run(sample.origin, p, 1280, `sample ${p}`);
   await run(sample.origin, '/', 390, 'sample / @390');
   await run(sample.origin, '/members/profile/?demo=1', 1280, 'profile demo', (pg) => pg.waitForSelector('[data-state=ready]:not([hidden])'));
   await run(sample.origin, '/members/profile/?demo=1', 390, 'profile demo @390', (pg) => pg.waitForSelector('[data-state=ready]:not([hidden])'));
@@ -257,8 +268,8 @@ async function supabaseBuild() {
     checkVariant('supabase mock data', dir, { data: true });
     ok(existsSync(join(dir, 'headshots', `${ID1}.webp`)), 'supabase', 'headshot file missing from dist');
     ok(!existsSync(join(dir, 'headshots', `${ID2}.webp`)), 'supabase', 'failed headshot must not be shipped');
-    const team = readFileSync(join(dir, 'team/index.html'), 'utf8');
-    ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Team page lacks mock data');
+    const team = readFileSync(join(dir, 'board/index.html'), 'utf8');
+    ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Board page lacks mock data');
     ok(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*width="800"[^>]*height="800"|<img[^>]*width="800"[^>]*height="800"[^>]*src="/headshots/${ID1}\\.webp"`).test(team), 'supabase', 'headshot img with width/height missing');
     ok(/Initials avatar for Mock Member Two/.test(team), 'supabase', 'failed headshot should fall back to the initials avatar');
     ok(/"@type":"Person"/.test(team) && /"jobTitle":"Mock President"/.test(team), 'supabase', 'Person JSON-LD missing');
@@ -305,6 +316,15 @@ async function smoke(dir) {
         ok(o.sw <= o.iw, `smoke:${p}@${width}`, `horizontal overflow (${o.sw} > ${o.iw})`);
       }
       await ctx.close();
+    }
+    // Header must fit on one row at common desktop widths (hamburger takes over below 1401px).
+    for (const width of [1401, 1440, 1600, 1920]) {
+      const hc = await browser.newContext({ viewport: { width, height: 900 } });
+      const hp = await hc.newPage();
+      await hp.goto(origin + '/', { waitUntil: 'load' });
+      const m = await hp.evaluate(() => { const h = document.querySelector('.header-inner'); const n = document.querySelector('.nav'); return { sw: h.scrollWidth, cw: h.clientWidth, h: h.getBoundingClientRect().height, nav: n.getBoundingClientRect().height }; });
+      ok(m.sw <= m.cw + 1 && m.h < 130 && m.nav < 70, `smoke:header@${width}`, `header does not fit (scroll ${m.sw} > ${m.cw}, height ${m.h})`);
+      await hc.close();
     }
     // Mobile nav with the keyboard
     const ctx = await browser.newContext({ viewport: { width: 390, height: 800 } });

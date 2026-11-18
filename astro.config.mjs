@@ -17,7 +17,7 @@ const SAMPLE = process.env.SAMPLE_DATA === '1';
 const { loadMembers } = await import('./src/lib/members.ts');
 const members = await loadMembers();
 const hidden = new Set(['/404/', '/members/', '/members/profile/', '/members/admin/']);
-if (!members.profiles.length) hidden.add('/team/');
+if (!members.profiles.length) hidden.add('/board/');
 if (!members.placements.length) hidden.add('/placements/');
 
 export default defineConfig({

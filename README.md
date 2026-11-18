@@ -1,6 +1,6 @@
 # Michigan Sustainable Investments website
 
-A fast, static website for the club, plus a members area where students write their own profiles and the board approves them. The public Team and Placements pages are rebuilt automatically from approved profiles.
+A fast, static website for the club, plus a members area where students write their own profiles and the board approves them. The public Board and Placements pages are rebuilt automatically from approved profiles.
 
 ## Change club facts
 Open `src/data/club.ts`. Every fact (founding year, dues, speaker firms, contact email, social links, application dates) lives there, with a short comment on each line. Save, and every page updates. An empty value hides the related part of the page.
@@ -19,7 +19,7 @@ Then update the description (alt text) in `src/pages/index.astro` and `src/pages
 2. `npm install`
 3. `npm run dev` and open the address it prints.
 
-To see the Team, Placements and members pages with obviously fake people: `SAMPLE_DATA=1 npm run dev`, then add `?demo=1` to a members page address, such as `/members/profile/?demo=1`. A yellow banner marks preview data. Never publish a build made this way.
+To see the Board, Placements and members pages with obviously fake people: `SAMPLE_DATA=1 npm run dev`, then add `?demo=1` to a members page address, such as `/members/profile/?demo=1`. A yellow banner marks preview data. Never publish a build made this way.
 
 Settings that change between environments are listed in `.env.example`.
 

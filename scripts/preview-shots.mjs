@@ -32,7 +32,7 @@ mkdirSync('_preview', { recursive: true });
 const shots = [
   ['home-desktop', '/', 1440], ['home-prod-desktop', '/', 1440, { prod: true }],
   ['home-mobile', '/', 390], ['home-mobile-top', '/', 390, { top: true }],
-  ['program-desktop', '/program/', 1440], ['team-desktop', '/team/', 1440], ['placements-desktop', '/placements/', 1440], ['about-desktop', '/about/', 1440],
+  ['program-desktop', '/program/', 1440], ['board-desktop', '/board/', 1440], ['board-empty-desktop', '/board/', 1440, { prod: true }], ['placements-desktop', '/placements/', 1440], ['sustainable-investing-desktop', '/sustainable-investing/', 1440, { prod: true }],
   ['join-desktop', '/join/', 1440], ['resume-guide-desktop', '/members/resume-guide/', 1440],
   ['members-profile-demo-desktop', '/members/profile/?demo=1', 1440], ['members-admin-demo-desktop', '/members/admin/?demo=1', 1440],
 ];

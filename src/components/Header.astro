@@ -32,6 +32,6 @@ const nav = await getNav();
       const next = (e as FocusEvent).relatedTarget as Node | null;
       if (next && !nav.contains(next) && next !== btn) set(false);
     });
-    window.matchMedia('(min-width: 1321px)').addEventListener('change', () => set(false));
+    window.matchMedia('(min-width: 1401px)').addEventListener('change', () => set(false));
   }
 </script>

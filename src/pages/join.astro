@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
-import { club, formatDate, numberWord } from '../data/club';
+import { club, formatDate, numberWord, selectivitySentence } from '../data/club';
+const selectivity = selectivitySentence();
 const crumbs = [{ name: 'Join', path: 'join/' }];
 const a = club.application;
 const closes = formatDate(a.closes);
@@ -18,7 +19,9 @@ const sym = club.symposium;
   title="Join | Michigan Sustainable Investments"
   description="How to join Michigan Sustainable Investments (MSI) at the University of Michigan. Membership is by application. Dates, dues and common questions."
 >
-  <PageHead title="Join MSI" lead="Membership is by application." crumbs={crumbs} />
+  <PageHead title="Join MSI" lead="Membership is by application." crumbs={crumbs}>
+    {selectivity && <p class="lead selectivity">{selectivity}</p>}
+  </PageHead>
   <section class="section-tight">
     <div class="wrap">
       <div class="status-block">
@@ -39,7 +42,7 @@ const sym = club.symposium;
       {club.dues && <><h3>How much are dues?</h3><p>{`${club.dues}.`}</p></>}
       <h3>How do I apply?</h3>
       <p>Through the application posted on this page when a cycle opens.</p>
-      <h3>How do members get listed on the Team and Placements pages?</h3>
+      <h3>How do members get listed on the Board and Placements pages?</h3>
       <p>Members sign in with their University of Michigan account, fill in a profile and choose what to publish. The board approves each profile before it appears.</p>
     </div>
   </section>

@@ -17,9 +17,8 @@ export const club = {
   university: 'University of Michigan',
   // Year the club was founded.
   founded: 2019,
-  // Name the club was founded under, and its short form.
+  // Name the club was founded under (used in the footer, Program and Join pages).
   formerName: 'Michigan Impact Investing Symposium',
-  formerShortName: 'MIIS',
   // Year the club took its current name.
   renamedYear: 2024,
   // Dues, written as it should read on the page. Empty hides the dues row and the dues question.
@@ -32,6 +31,10 @@ export const club = {
   contactEmail: '',
   // Social links. Each one appears in the footer only when it has a value (use the full https:// address).
   social: { linkedin: '', instagram: '', x: '' },
+  // How selective the last application round was. Fill in ALL THREE to show the sentence
+  // "In {term}, {applied} students applied and {admitted} were admitted." on the Join page and the home page.
+  // Leave term empty (or either number 0) to show nothing. Example term: 'Fall 2026'.
+  selectivity: { term: '', applied: 0, admitted: 0 },
   // Application cycle. state: 'unannounced' | 'scheduled' | 'open'.
   // opens / closes: dates written YYYY-MM-DD. applyUrl: the application form address (needed for the Apply now button).
   application: {
@@ -41,6 +44,13 @@ export const club = {
     applyUrl: '',
   },
 };
+
+// The selectivity sentence, or '' while any of the three values is missing.
+export function selectivitySentence() {
+  const { term, applied, admitted } = club.selectivity;
+  if (!term || !(applied > 0) || !(admitted > 0)) return '';
+  return `In ${term}, ${applied} students applied and ${admitted} were admitted.`;
+}
 
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 // 5 -> "five"; larger numbers stay as digits.
