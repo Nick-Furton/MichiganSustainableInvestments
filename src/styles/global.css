@@ -95,7 +95,7 @@ strong { color: var(--ink); font-weight: 600; }
 .site-header { background: #fff; border-bottom: 1px solid var(--line); position: relative; z-index: 20; }
 .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: var(--header-h); }
 .logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
-.logo-mark { width: 40px; height: auto; flex: none; }
+.logo-mark { width: 44px; height: auto; flex: none; }
 .logo-word { font-weight: 800; font-size: 13px; letter-spacing: 0.12em; line-height: 1.25; text-transform: uppercase; color: var(--ink); }
 .logo-word span { display: block; }
 .nav { display: flex; align-items: center; gap: 22px; }

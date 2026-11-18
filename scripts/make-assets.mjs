@@ -8,7 +8,7 @@ try { pw = require('playwright'); } catch { pw = require('/opt/node-tools/node_m
 const svg = readFileSync('public/favicon.svg');
 await sharp(svg, { density: 600 }).resize(512, 512).png().toFile('public/logo.png');
 await sharp(svg, { density: 600 }).resize(180, 180).png().toFile('public/apple-touch-icon.png');
-const mark = `<svg viewBox="0 0 48 52" width="96" height="104"><rect x="4" y="38" width="10" height="12" rx="5" fill="#0b1f3a"/><rect x="19" y="26" width="10" height="24" rx="5" fill="#0b1f3a"/><rect x="34" y="14" width="10" height="36" rx="5" fill="#0b1f3a"/><circle cx="39" cy="6" r="5" fill="#ffcb05"/></svg>`;
+const mark = `<svg viewBox="2 0 62 58" width="104" height="97"><path d="M8 52 L22 22 L33 40 L46 14 L56 34" fill="none" stroke="#0b1f3a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 13 C46 5 52 1 61 1 C61 10 55 13 46 13 Z" fill="#ffcb05"/></svg>`;
 const html = `<html><body style="margin:0;width:1200px;height:630px;background:#fbfaf7;font-family:Inter,Arial,sans-serif;position:relative;overflow:hidden">
 <div style="position:absolute;left:80px;top:72px;display:flex;align-items:center;gap:24px">${mark}<div style="font-weight:800;letter-spacing:.14em;font-size:26px;line-height:1.3;color:#27282a">MICHIGAN<br>SUSTAINABLE INVESTMENTS</div></div>
 <div style="position:absolute;left:80px;top:270px;width:900px;font-weight:600;font-size:84px;line-height:1.04;letter-spacing:-.04em;color:#27282a">The sustainable investing club at the University of Michigan.</div>

@@ -1,5 +1,5 @@
 ---
-// Original club mark: three ascending rounded bars, the tallest topped by a small maize circle, beside the wordmark.
+// Original club mark ("Peaks"): an M drawn as a rising chart, the second peak higher, with a maize leaf at the top, beside the wordmark.
 import { url } from '../lib/url';
 interface Props { light?: boolean; link?: boolean }
 const { light = false, link = true } = Astro.props;
@@ -7,21 +7,17 @@ const bar = light ? '#ffffff' : '#0b1f3a';
 ---
 {link ? (
   <a class="logo" href={url('')}>
-    <svg class="logo-mark" viewBox="0 0 48 52" width="40" height="43" aria-hidden="true" focusable="false">
-      <rect x="4" y="38" width="10" height="12" rx="5" fill={bar} />
-      <rect x="19" y="26" width="10" height="24" rx="5" fill={bar} />
-      <rect x="34" y="14" width="10" height="36" rx="5" fill={bar} />
-      <circle cx="39" cy="6" r="5" fill="#ffcb05" />
+    <svg class="logo-mark" viewBox="2 0 62 58" width="43" height="40" aria-hidden="true" focusable="false">
+      <path d="M8 52 L22 22 L33 40 L46 14 L56 34" fill="none" stroke={bar} stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M46 13 C46 5 52 1 61 1 C61 10 55 13 46 13 Z" fill="#ffcb05" />
     </svg>
     <span class="logo-word"><span>Michigan</span> <span>Sustainable Investments</span></span>
   </a>
 ) : (
   <span class="logo">
-    <svg class="logo-mark" viewBox="0 0 48 52" width="40" height="43" aria-hidden="true" focusable="false">
-      <rect x="4" y="38" width="10" height="12" rx="5" fill={bar} />
-      <rect x="19" y="26" width="10" height="24" rx="5" fill={bar} />
-      <rect x="34" y="14" width="10" height="36" rx="5" fill={bar} />
-      <circle cx="39" cy="6" r="5" fill="#ffcb05" />
+    <svg class="logo-mark" viewBox="2 0 62 58" width="43" height="40" aria-hidden="true" focusable="false">
+      <path d="M8 52 L22 22 L33 40 L46 14 L56 34" fill="none" stroke={bar} stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M46 13 C46 5 52 1 61 1 C61 10 55 13 46 13 Z" fill="#ffcb05" />
     </svg>
     <span class="logo-word"><span>Michigan</span> <span>Sustainable Investments</span></span>
   </span>
