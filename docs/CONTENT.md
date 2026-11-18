@@ -22,7 +22,7 @@ Facts live in ONE file (`src/data/club.ts`) so the board can change them without
 - Footer disclaimer (every page): `Michigan Sustainable Investments is a student organization at the University of Michigan. It is not an official unit of the University and does not speak for it. Nothing on this site is investment advice.`
 - Footer history line: `Founded in 2019 as the Michigan Impact Investing Symposium.`
 - Footer links: all nav pages, `Résumé and LinkedIn guide`, `Privacy`.
-- Placeholder photo alt text: home hero `A presenter in a navy suit stands at a podium with her notes.`; Program page `A presenter in a dark suit points to a slide while an audience looks on.` (No caption. Never describe the people as MSI members.)
+- Placeholder photo alt text: `A presenter in a dark suit points to a slide while an audience looks on.` (No caption. Never describe the people as MSI members.)
 
 ## Home (`/`)
 
