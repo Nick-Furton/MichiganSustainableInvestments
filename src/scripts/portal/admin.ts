@@ -140,7 +140,11 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
         order.setAttribute('aria-label', `Display order for ${r.full_name}`);
         const save = el('button', { type: 'button', className: 'btn btn-outline btn-sm', textContent: 'Save' });
         save.setAttribute('aria-label', `Save ${r.full_name}`);
-        save.addEventListener('click', () => run(() => api!.setBoard(r.profile_id, title.value, Number(order.value) || 0), 'Saved.'));
+        const saveRow = () => run(() => api!.setBoard(r.profile_id, title.value, Number(order.value) || 0), 'Saved.');
+        save.addEventListener('click', saveRow);
+        // Also save as soon as a title or order is changed, so an edit is never lost by forgetting the row's Save button.
+        title.addEventListener('change', saveRow);
+        order.addEventListener('change', saveRow);
         list.append(el('tr', {}, el('td', {}, r.full_name, el('div', { className: 'small' }, r.email)), el('td', {}, title), el('td', {}, order), el('td', {}, save)));
       }
     });
