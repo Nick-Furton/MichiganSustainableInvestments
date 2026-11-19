@@ -13,7 +13,7 @@ const crumbs = [{ name: 'Privacy', path: 'privacy/' }];
   title="Privacy | Michigan Sustainable Investments"
   description="What Michigan Sustainable Investments (MSI) collects from members, why, who sees it, where it is stored, how sign-in works and how to delete a profile."
 >
-  <PageHead title="Privacy" crumbs={crumbs} />
+  <PageHead title="Privacy" />
   <section class="section-tight">
     <div class="wrap prose">
       <h2>What we collect</h2>
@@ -34,12 +34,14 @@ const crumbs = [{ name: 'Privacy', path: 'privacy/' }];
           <p>The contact form stores your name, email address, organization (if you give one) and your message. Only the board can read it. The board deletes a message on request.</p>
         </>
       )}
-      <h2>Contact</h2>
-      {club.contactEmail
-        ? <p><a href={`mailto:${club.contactEmail}`}>{club.contactEmail}</a></p>
-        : contact
-          ? <p>Use the <a href={url('contact/')}>contact form</a>.</p>
-          : <p>Contact details will be posted here.</p>}
+      {(club.contactEmail || contact) && (
+        <>
+          <h2>Contact</h2>
+          {club.contactEmail
+            ? <p><a href={`mailto:${club.contactEmail}`}>{club.contactEmail}</a></p>
+            : <p>Use the <a href={url('contact/')}>contact form</a>.</p>}
+        </>
+      )}
     </div>
   </section>
 </Base>

@@ -7,15 +7,14 @@ Open `src/data/club.ts`. Every fact (founding year, dues, speaker firms, contact
 
 To open applications, set `state` to `'open'`, fill `closes` (as `YYYY-MM-DD`) and `applyUrl`. For a future cycle use `'scheduled'` and `opens`.
 
-## Swap the two placeholder photos
-Replace these files with your own photos, keeping the same names:
+## Swap the placeholder photo
+Replace this file with your own photo, keeping the same name:
 - `src/assets/placeholder/presenting-hero.jpg` (tall, about 2:3, the photo on the home page)
-- `src/assets/placeholder/presenting-wide.jpg` (wide, about 3:2, Program page)
 
-Then update the description (alt text) in `src/pages/index.astro` and `src/pages/who-we-are.astro` to say what the photo shows.
+Then update the description (alt text) in `src/pages/index.astro` to say what the photo shows. Who We Are has no photo.
 
 ## How the site is laid out
-- **Home page** (`src/pages/index.astro`): a one-screen landing page with the photo, the club name, two buttons and links to the four sections. It has no site header or footer, and it is sized to fit the window without scrolling. Its styles are the `.landing` block in `src/styles/global.css`. The home photo is `src/assets/placeholder/presenting-hero.jpg`.
+- **Home page** (`src/pages/index.astro`): a one-screen landing page with the photo, the club name and links to the four sections. Its buttons (Apply, Contact us) appear only while applications are open or dated, or once the contact form is on. It has no site header or footer, and it is sized to fit the window without scrolling. Its styles are the `.landing` block in `src/styles/global.css`. The home photo is `src/assets/placeholder/presenting-hero.jpg`.
 - **Placements page**: a wall of firm logos. The firms and groups are in `src/data/firms.ts`. The logo files are in `public/firms/`, and `public/firms/SOURCES.txt` says where each one came from. To add a firm, add its logo file and a line in `src/data/firms.ts`.
 - **Contact form**: `supabase/03_contact.sql` (the database side), `src/pages/[contact].astro` (the page), `src/scripts/contact.ts` and `src/scripts/contact-send.ts` (the form). The page exists only after the SQL file has been run: each build asks the database (`scripts/prebuild.mjs`) and `src/lib/contact.ts` holds the answer. The board reads messages on the admin page, under Messages.
 - **Page wording**: `docs/CONTENT.md` has the exact copy of every page.
@@ -40,3 +39,7 @@ Going live: see `docs/SETUP.md`. Before launch: `docs/PRELAUNCH.md`.
 ## Soft launch
 
 The site starts hidden from search engines so the board can check it on a real address first. To make it findable, set `searchVisible: true` in `src/data/club.ts`.
+
+## Typefaces
+
+Headings use Source Serif 4 and all other text uses Inter. Both come from npm packages (`@fontsource-variable/source-serif-4`, `@fontsource-variable/inter`) and are served from the site itself. `node scripts/make-assets.mjs` redraws the share image (`public/og.png`) with the same typefaces.

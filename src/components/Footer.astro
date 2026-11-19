@@ -5,7 +5,7 @@ import { getNav } from '../lib/nav';
 import { club } from '../data/club';
 import { contactReady } from '../lib/contact';
 const nav = await getNav();
-const links = [...nav, ...(contactReady() ? [{ label: 'Contact', path: 'contact/' }] : []), { label: 'Privacy', path: 'privacy/' }];
+const links = [...nav, ...(contactReady() ? [{ label: 'Contact', path: 'contact/' }] : []), { label: 'Member sign-in', path: 'members/' }, { label: 'Privacy', path: 'privacy/' }];
 const socials = [
   { label: 'LinkedIn', href: club.social.linkedin },
   { label: 'Instagram', href: club.social.instagram },
@@ -28,8 +28,8 @@ const socials = [
       )}
     </div>
     <div class="footer-bottom">
-      <p>Michigan Sustainable Investments is a student organization at the University of Michigan. It is not an official unit of the University and does not speak for it. Nothing on this site is investment advice.</p>
-      <p>{`Founded in ${club.founded} as the ${club.formerName}.`}</p>
+      <p>Michigan Sustainable Investments is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice.</p>
+      <p>{`Founded in ${club.founded} as the ${club.formerName}. Renamed ${club.name} in ${club.renamedYear}.`}</p>
     </div>
   </div>
 </footer>

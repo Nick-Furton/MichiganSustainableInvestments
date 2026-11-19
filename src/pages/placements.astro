@@ -16,7 +16,7 @@ const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'n
   title="Placements | Michigan Sustainable Investments"
   description="Firms where alumni of Michigan Sustainable Investments (MSI) have worked, in investment banking, private equity and asset management."
 >
-  <PageHead title="Placements" lead="MSI alumni have gone on to work at these firms." crumbs={crumbs} />
+  <PageHead title="Placements" lead="MSI alumni have gone on to work at these firms." />
   <section class="section-tight">
     <div class="wrap">
       {firmWall.map((g) => (
@@ -33,7 +33,6 @@ const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'n
           </ul>
         </div>
       ))}
-      <p class="small firm-note">Firm names and logos identify employers only. They are trademarks of their owners and do not imply sponsorship or endorsement.</p>
     </div>
   </section>
   {m.placements.length > 0 && (
@@ -52,14 +51,8 @@ const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'n
   )}
   <section class="section-tight">
     <div class="wrap prose">
-      <h2 id="careers">Careers members prepare for</h2>
-      <p>Sustainable finance is now a line of business at banks, asset managers and funds. Members use MSI to prepare for roles in:</p>
-      <ul>
-        <li><strong>Investment banking.</strong> Energy transition, renewables, and power and utilities groups advise on and finance the build-out of clean power.</li>
-        <li><strong>Sustainable finance and capital markets.</strong> Desks that structure green and sustainability-linked bonds.</li>
-        <li><strong>Asset management and research.</strong> Funds and analysts that weigh environmental, social and governance factors in public markets.</li>
-        <li><strong>Impact investing and venture capital.</strong> Funds that back companies with a measurable social or environmental goal.</li>
-      </ul>
+      <h2>Careers members prepare for</h2>
+      <p>Banks, asset managers and funds now staff teams built around the energy transition: renewables and power groups in investment banking, green bond desks, ESG research, and impact and climate funds. MSI members study the instruments those teams use.</p>
     </div>
   </section>
 </Base>

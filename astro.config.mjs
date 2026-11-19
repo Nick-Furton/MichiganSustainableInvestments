@@ -3,6 +3,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { loadEnv } from 'vite';
+import { execSync } from 'node:child_process';
 
 const fileEnv = loadEnv('production', process.cwd(), '');
 for (const [k, v] of Object.entries(fileEnv)) if (process.env[k] === undefined) process.env[k] = v;
@@ -19,6 +20,14 @@ const members = await loadMembers();
 const hidden = new Set(['/404/', '/members/', '/members/profile/', '/members/admin/']);
 if (!members.profiles.length) hidden.add('/leadership/');
 
+// The sitemap's "last modified" date is the date of the latest saved change to the site (the newest commit).
+// If that cannot be read (no git here), the date is simply left out.
+let lastmod;
+try {
+  const d = new Date(execSync('git log -1 --format=%cI', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim());
+  if (!isNaN(+d)) lastmod = d.toISOString();
+} catch { /* no git: leave it out */ }
+
 export default defineConfig({
   site: SITE_URL,
   base,
@@ -30,6 +39,7 @@ export default defineConfig({
         const path = new URL(page).pathname.slice(base.length - 1);
         return !hidden.has(path);
       },
+      serialize: (item) => (lastmod ? { ...item, lastmod } : item),
     }),
   ],
   vite: {

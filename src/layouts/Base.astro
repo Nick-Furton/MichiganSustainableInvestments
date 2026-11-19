@@ -1,12 +1,14 @@
 ---
 import '../styles/global.css';
 import fontUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import serifUrl from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { url, abs } from '../lib/url';
 import { club } from '../data/club';
 import { isSample } from '../lib/members';
 import { searchVisible } from '../lib/visibility';
+import { contactReady } from '../lib/contact';
 
 interface Crumb { name: string; path: string }
 interface Props {
@@ -26,15 +28,21 @@ const sample = isSample();
 // Members-area pages are always hidden from search; every page is hidden during the soft launch.
 const hideFromSearch = noindex || !searchVisible();
 
+// The club's facts in the form search engines and AI assistants read (home page only). Everything here is also
+// stated on the pages; nothing is claimed here that a visitor cannot see.
 const org = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: club.name,
-  alternateName: club.shortName,
+  alternateName: [club.shortName, club.formerName],
   url: abs(''),
   logo: abs('logo.png'),
-  description: club.descriptor,
+  description: `Student-run sustainable investing club at the ${club.university}. Founded in ${club.founded} as the ${club.formerName}. Membership is by application.`,
   foundingDate: String(club.founded),
+  address: { '@type': 'PostalAddress', addressLocality: club.location.city, addressRegion: club.location.region, addressCountry: club.location.country },
+  knowsAbout: ['Sustainable investing', 'Impact investing', 'Investment banking', 'Private equity', 'Asset management'],
+  ...(club.contactEmail ? { email: club.contactEmail } : {}),
+  ...(contactReady() ? { contactPoint: { '@type': 'ContactPoint', contactType: 'general inquiries', url: abs('contact/') } } : {}),
   ...(Object.values(club.social).some(Boolean) ? { sameAs: Object.values(club.social).filter(Boolean) } : {}),
 };
 const website = { '@context': 'https://schema.org', '@type': 'WebSite', name: club.name, url: abs('') };
@@ -59,7 +67,9 @@ const ld = (o: object) => JSON.stringify(o).replace(/</g, '\\u003c');
     <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={url('apple-touch-icon.png')} />
     <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={serifUrl} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content={club.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
