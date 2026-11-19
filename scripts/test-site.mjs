@@ -20,7 +20,14 @@ const fail = (where, msg) => { failures++; console.error(`  FAIL [${where}] ${ms
 const ok = (cond, where, msg) => { checks++; if (!cond) fail(where, msg); };
 
 const BANNED = ['empower', 'unlock', 'elevate', 'journey', 'vibrant', 'passionate', 'delve', 'foster', 'comprehensive', 'cutting-edge', 'world-class'];
-const DISCLAIMER = 'Michigan Sustainable Investments is a student organization at the University of Michigan. It is not an official unit of the University and does not speak for it. Nothing on this site is investment advice.';
+const DISCLAIMER = 'Michigan Sustainable Investments is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice. Company names and logos belong to their owners.';
+const HISTORY = 'Founded in 2019 as the Michigan Impact Investing Symposium. Renamed Michigan Sustainable Investments in 2024.';
+// Wording that was removed on purpose. It must not come back on any page.
+const REMOVED_TEXT = ['Who has spoken at MSI', 'Where the work happens', 'Sustainable finance is a way into banking', 'The program has four parts', 'Common questions', 'Contact details will be posted here', 'Dates will be posted here', 'does not imply sponsorship or endorsement', 'does not speak for it', 'For employers and speakers', 'Executive board'];
+const CLUB_SRC = readFileSync('src/data/club.ts', 'utf8');
+const APPLY_OFFERED = /state:\s*'(open|scheduled)'/.test(CLUB_SRC.slice(CLUB_SRC.indexOf('application:')));
+const DUES = (/dues:\s*'([^']*)'/.exec(CLUB_SRC) || [])[1] || '';
+const count = (text, needle) => text.split(needle).length - 1;
 const MEMBER_COUNT = /\b\d[\d,]*\+?\s+(?:(?:active|current|student|undergraduate)\s+)?members\b|\bmembers\s*[:\-]\s*\d/i;
 
 // Async spawn: the Supabase test runs a mock server inside this process, so builds must not block the event loop.
@@ -55,6 +62,8 @@ function visibleText(html) {
   return decode(html.replace(/<(script|style|template|noscript)[\s\S]*?<\/\1>/gi, ' ').replace(/<head[\s\S]*?<\/head>/i, ' ').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 }
 
+// The sitemap carries lastmod (the newest commit's date) only when git can say what it is.
+const GIT_DATE = spawnSync('git', ['log', '-1', '--format=%cI']).stdout?.toString().trim();
 function checkVariant(name, dir, { base = '/', sample = false, data = false, contact = false }) {
   const hasData = sample || data;
   console.log(`\n== ${name} ==`);
@@ -131,9 +140,12 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
     if (isHome) ok(text.includes('not an official unit') && text.includes('investment advice'), w, 'home small print missing');
     else {
       ok(text.includes(DISCLAIMER), w, 'footer disclaimer missing');
-      ok(/Founded in 2019 as the Michigan Impact Investing Symposium\./.test(text), w, 'footer history line missing');
+      ok(text.includes(HISTORY), w, 'footer history line missing');
     }
     ok(!/lorem|TODO|\[CONFIRM\]/i.test(text), w, 'placeholder text found');
+    for (const gone of REMOVED_TEXT) ok(!text.includes(gone), w, `removed wording is back: "${gone}"`);
+    ok(!/class="crumbs"|aria-label="Breadcrumb"/.test(html), w, 'breadcrumbs must not be shown');
+    ok(/<meta property="og:locale" content="en_US"/.test(html), w, 'missing og:locale');
     ok(!/[\[\]]/.test(text), w, 'square-bracket placeholder in text');
     for (const word of BANNED) ok(!new RegExp(`\\b${word}\\b`, 'i').test(text + ' ' + title + ' ' + desc), w, `banned word "${word}"`);
     ok(!/not just[^.]*\bbut\b/i.test(text), w, 'banned "not just X but Y"');
@@ -158,6 +170,11 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
     const n = /<nav class="nav"[\s\S]*?<\/nav>/.exec(html);
     const l = n ? [...n[0].matchAll(/<li><a [^>]*>([^<]+)<\/a><\/li>/g)].map((m) => m[1]).join('|') : '';
     ok(l === SECTIONS.join('|'), `${name}:nav`, `${pathOfFile(p)} nav is "${l}"`);
+    // Member sign-in is a quiet text link. The one dark button is Apply while a cycle is open or dated, else Contact when the form is ready, else none.
+    ok(new RegExp(`<a class="nav-signin" href="${base}members/"[^>]*>Member sign-in</a>`).test(html), `${name}:nav`, `${pathOfFile(p)} needs the Member sign-in text link`);
+    const cta = [...html.matchAll(/<a class="btn btn-dark btn-sm nav-cta" href="([^"]*)">([^<]*)<\/a>/g)].map((m) => `${m[2]}>${m[1]}`);
+    const wantCta = APPLY_OFFERED ? [`Apply>${base}recruitment/`] : contact ? [`Contact>${base}contact/`] : [];
+    ok(cta.join('|') === wantCta.join('|'), `${name}:nav`, `${pathOfFile(p)} header button is "${cta.join(', ')}", expected "${wantCta.join(', ')}"`);
   }
   ok(!existsSync(join(dir, 'about')) && !existsSync(join(dir, 'team')), name, 'About and Team pages must not exist');
   for (const gone of ['sustainable-investing', 'program', 'employers', 'board', 'join']) ok(!existsSync(join(dir, gone)), name, `/${gone}/ must not exist`);
@@ -177,26 +194,37 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   const landingLinks = landingNav ? [...landingNav[0].matchAll(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ href: decode(m[1]), label: visibleText(m[2]) })) : [];
   ok(landingLinks.map((l) => l.label).join('|') === SECTIONS.join('|'), name, `landing nav must list ${SECTIONS.join(', ')} in order (got ${landingLinks.map((l) => l.label).join(', ')})`);
   ok(landingLinks.every((l, i) => l.href === base + SECTION_PATHS[i]), name, 'landing nav links point at the wrong pages');
-  ok(new RegExp(`<a [^>]*href="${base}recruitment/"[^>]*>\\s*Apply\\s*</a>`).test(home), name, 'home needs an Apply link to recruitment/');
   ok(homeText.includes('not an official unit') && homeText.includes('investment advice'), name, 'home small print needs the not-official and not-advice lines');
   ok(new RegExp(`<p class="landing-legal">[\\s\\S]*<a [^>]*href="${base}privacy/"[^>]*>Privacy</a>`).test(home), name, 'home small print needs a Privacy link');
-  // Member sign-in is reachable from the home page in both states: the second button, or the small print.
-  ok(new RegExp(`<a [^>]*href="${base}members/"[^>]*>Member sign-in</a>`).test(home), name, 'home needs a Member sign-in link');
+  ok(!/class="hl"|class="[^"]*\bhl\b/.test(home), name, 'the name on the home page must be plain text (no .hl span)');
+  ok(/<title>Michigan Sustainable Investments \| University of Michigan<\/title>/.test(home), name, 'home title');
+  // Member sign-in is always a link in the small print, before Privacy. It is never a button on the home page.
+  ok(new RegExp(`<p class="landing-legal">[\\s\\S]*<a [^>]*href="${base}members/"[^>]*>Member sign-in</a> · <a [^>]*href="${base}privacy/"`).test(home), name, 'home small print needs Member sign-in before Privacy');
+  ok(count(home, 'Member sign-in') === 1, name, 'Member sign-in must appear once on the home page');
+  // Buttons: Apply only while a cycle is open or dated; Contact us only when the form is ready; with neither, no button row.
+  const btnLabels = [...home.matchAll(/<a class="btn [^"]*"[^>]*>([^<]*)<\/a>/g)].map((m) => m[1]);
+  const wantBtns = [...(APPLY_OFFERED ? ['Apply'] : []), ...(contact ? ['Contact us'] : [])];
+  ok(btnLabels.join('|') === wantBtns.join('|'), name, `home buttons are "${btnLabels.join(', ')}", expected "${wantBtns.join(', ')}"`);
+  ok(/class="btn-row"/.test(home) === wantBtns.length > 0, name, wantBtns.length ? 'home needs its button row' : 'home must have no button row when it has no buttons');
   if (contact) {
-    ok(new RegExp(`<a [^>]*href="${base}contact/"[^>]*>Contact us</a>`).test(home), name, 'home needs the Contact us button when the form is ready');
-    ok(/<p class="landing-legal">[\s\S]*Member sign-in/.test(home), name, 'member sign-in belongs in the small print when the form is ready');
+    ok(new RegExp(`<a class="btn ${APPLY_OFFERED ? 'btn-outline' : 'btn-dark'}" href="${base}contact/">Contact us</a>`).test(home) && count(home, 'Contact us') === 1, name, 'home needs exactly one Contact us button');
   } else {
     ok(!/Contact us/.test(home) && !new RegExp(`href="${base}contact/"`).test(home), name, 'home must not mention contact when the form is not ready');
-    ok(!/<p class="landing-legal">[\s\S]*Member sign-in/.test(home), name, 'member sign-in is the second button, not in the small print, when the form is not ready');
   }
   ok(!/Where members go|<h2>Leadership<\/h2>|What members do|Who has spoken/.test(home), name, 'home is one screen: no section blocks');
 
   // Footer on an inner page.
   const foot = /<footer[\s\S]*?<\/footer>/.exec(htmlOf.get(join(dir, 'privacy/index.html')))[0];
   const footLabels = [...foot.matchAll(/<li><a [^>]*>([^<]+)<\/a><\/li>/g)].map((m) => m[1]);
-  const wantFoot = [...SECTIONS, ...(contact ? ['Contact'] : []), 'Privacy'];
+  const wantFoot = [...SECTIONS, ...(contact ? ['Contact'] : []), 'Member sign-in', 'Privacy'];
+  const footText = visibleText(foot);
+  ok(footText.includes(DISCLAIMER) && footText.includes(HISTORY), name, 'footer sentences');
   ok(footLabels.slice(0, wantFoot.length).join('|') === wantFoot.join('|') && footLabels.length === wantFoot.length, name, `footer links must be ${wantFoot.join(', ')} (got ${footLabels.join(', ')})`);
 
+  // Privacy: the Contact heading appears only when there is a contact address or the contact form is ready.
+  const privHtml = htmlOf.get(join(dir, 'privacy/index.html'));
+  ok(/<h2>Contact<\/h2>/.test(privHtml) === contact, name, contact ? 'privacy needs a Contact line pointing at the form' : 'privacy must have no Contact heading or placeholder without a contact address or form');
+  if (contact) ok(new RegExp(`<a href="${base}contact/">contact form</a>`).test(privHtml) && /<h2>Contact form<\/h2>/.test(privHtml), name, 'privacy needs the contact form paragraph and link');
   // Contact page: exists, is linked and is in the sitemap only when the form is ready.
   ok(existsSync(join(dir, 'contact', 'index.html')) === contact, name, contact ? '/contact/ must exist when the form is ready' : '/contact/ must not exist when the form is not ready');
   const linksToContact = [...htmlOf.values()].some((h) => new RegExp(`href="${base}contact/"`).test(h));
@@ -211,14 +239,23 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
     ok(/<option value="" selected>/.test(c) && ['recruiting', 'speaking', 'joining', 'other'].every((v) => c.includes(`<option value="${v}">`)), name, 'contact topics');
     ok(/Your message goes to the MSI board\. See <a [^>]*href="[^"]*privacy\/"/.test(c), name, 'contact page privacy line');
   }
-  const wwa = visibleText(htmlOf.get(join(dir, 'who-we-are/index.html')));
-  ok(['What we do', 'The program', 'Investing education', 'Hands-on projects', 'Professional development', 'Speakers and the Symposium', 'Who has spoken at MSI', 'Sustainable finance is a way into banking', 'Where the work happens'].every((h) => wwa.includes(h)), name, 'who-we-are sections');
-  ok(!/For employers and speakers|Speak to members|Meet members|Support the symposium/.test(wwa), name, 'the employers section must be gone from Who We Are');
+  const wwaHtml = htmlOf.get(join(dir, 'who-we-are/index.html'));
+  const wwa = visibleText(wwaHtml);
+  ok(['What we do', 'The program', 'Investing education', 'Hands-on projects', 'Professional development', 'Speakers and the Symposium'].every((h) => wwa.includes(h)), name, 'who-we-are sections');
+  ok(!/<img\b/.test(/<main[\s\S]*<\/main>/.exec(wwaHtml)[0]), name, 'Who We Are has no photo');
+  // Each fact once: the speaker firms and the instrument list are each stated one time on the page.
+  const speakers = (/speakerFirms:\s*\[([^\]]*)\]/.exec(CLUB_SRC) || [, ''])[1].match(/'([^']+)'/g)?.map((x) => x.slice(1, -1)) || [];
+  ok(speakers.length > 0 && speakers.every((f) => count(wwa, f) === 1), name, 'each symposium speaker firm must appear exactly once on Who We Are');
+  ok(count(wwa, 'public equities, green bonds, venture capital, microfinance and clean-energy finance') === 1, name, 'the instrument list must appear exactly once on Who We Are');
+  ok(count(wwa, 'Speakers and the Symposium') === 1, name, 'Speakers and the Symposium must appear once');
+  const membersHome = visibleText(htmlOf.get(join(dir, 'members/index.html')));
+  ok(count(membersHome, 'Sign in with your University of Michigan Google account to create or update your profile.') === 1, name, 'the sign-in sentence must appear exactly once on the member sign-in page');
 
   // Placements: logo wall.
   const plHtml = htmlOf.get(join(dir, 'placements/index.html'));
   const plText = visibleText(plHtml);
-  ok(/<h2 id="careers">Careers members prepare for<\/h2>/.test(plHtml) && (plHtml.match(/<li><strong>/g) || []).length === 4, name, 'placements careers section');
+  const careers = /<h2>Careers members prepare for<\/h2>[\s\S]*?<\/section>/.exec(plHtml);
+  ok(!!careers && /<p>/.test(careers[0]) && !/<li[\s>]/.test(careers[0]) && !/id="careers"/.test(plHtml), name, 'placements careers section must be one paragraph with no list and no #careers anchor');
   ok(!/noindex/.test((/<meta name="robots" content="([^"]*)"/.exec(plHtml) || [])[1] || ''), name, 'placements must be indexable even when empty');
   ok(plText.includes('MSI alumni have gone on to work at these firms.'), name, 'placements intro line');
   ok(!/Internship and full-time offers accepted by MSI members|MSI publishes placements as members report them|sign in to add yours/i.test(plText), name, 'old placements lead, empty state or sign-in link is back');
@@ -238,7 +275,7 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
     ok(src.startsWith(base + 'firms/') && existsSync(join(dir, src.slice(base.length))), name, `logo file missing from the build: ${src}`);
   }
   ok(alts.join('|') === FIRM_NAMES.join('|'), name, 'firm names on the page must match src/data/firms.ts, in order');
-  ok(/trademarks of their owners/.test(plText), name, 'placements trademark note');
+  ok(!/trademarks of their owners|firm-note/.test(plHtml), name, 'the trademark note must not be in the Placements page (the footer carries it)');
   const hasOffers = /<h2 class="offers-title">Offers by year<\/h2>/.test(plHtml);
   ok(hasOffers === hasData, name, hasData ? 'placements needs "Offers by year" when members reported offers' : 'placements must not show "Offers by year" without offers');
   if (hasData) ok(/<h3>20\d\d<\/h3>/.test(plHtml), name, 'offers need year headings');
@@ -249,7 +286,9 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   ok(!/Executive board<|MSI is run by its executive board/.test(ldHtml), name, 'old Leadership heading or lead sentence is back');
   if (hasData) ok(levels.includes(2), name, 'leadership cards need h2 headings');
   const recr = visibleText(htmlOf.get(join(dir, 'recruitment/index.html')));
-  ok(/Leadership and Placements pages/.test(recr) && !/Board and Placements/.test(recr), name, 'recruitment FAQ wording');
+  ok(!/How do members get listed|Is MSI part of the University/.test(recr), name, 'the recruitment question list must be gone');
+  ok(APPLY_OFFERED || recr.includes('Applications are closed. Dates for the next cycle have not been announced.'), name, 'recruitment closed wording');
+  ok(!DUES || (/<h2>Dues<\/h2>/.test(htmlOf.get(join(dir, 'recruitment/index.html'))) && recr.includes(DUES)), name, 'recruitment needs its Dues section when dues are set');
   ok(!/Key facts|fact-num/.test(home), name, 'home facts strip must be gone');
   ok(!/students applied/.test(home + htmlOf.get(join(dir, 'recruitment/index.html'))), name, 'selectivity sentence must not show while empty');
   // JS bundles: demo code only in sample builds
@@ -265,10 +304,19 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   ok(hasData ? sm.includes('/leadership/') : !sm.includes('/leadership/'), name, 'sitemap leadership entry should follow data');
   ok(sm.includes('/placements/') && sm.includes('/who-we-are/') && sm.includes('/recruitment/') && !/\/(sustainable-investing|program|employers|board|join)\//.test(sm) && !sm.includes('/about/') && !sm.includes('/team/'), name, 'sitemap: four sections in (placements even when empty), deleted pages, about and team out');
   if (base !== '/') ok(sm.includes(base), name, 'sitemap lacks base path');
+  if (GIT_DATE) ok(/<lastmod>\d{4}-\d\d-\d\dT/.test(sm) && (sm.match(/<lastmod>/g) || []).length === (sm.match(/<url>/g) || []).length, name, 'every sitemap entry needs a lastmod');
+  // Structured data on the home page.
+  const org = [...home.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])).find((o) => o['@type'] === 'Organization');
+  ok(!!org && [].concat(org.alternateName).includes('MSI') && [].concat(org.alternateName).includes('Michigan Impact Investing Symposium'), name, 'Organization alternateName needs MSI and the former name');
+  ok(org?.address?.addressLocality === 'Ann Arbor' && org?.address?.addressRegion === 'MI', name, 'Organization needs the Ann Arbor address');
+  ok(!!org?.description, name, 'Organization needs a description');
+  ok(!!org?.contactPoint === contact && (!contact || org.contactPoint.url.endsWith(`${base}contact/`)), name, contact ? 'Organization needs a contactPoint with the contact page' : 'Organization must not have a contactPoint without the contact form');
   ok(existsSync(join(dir, 'robots.txt')) && /Sitemap:/.test(readFileSync(join(dir, 'robots.txt'), 'utf8')), name, 'robots.txt with sitemap');
   const llms = readFileSync(join(dir, 'llms.txt'), 'utf8');
   ok(llms.includes('Michigan Sustainable Investments') && !MEMBER_COUNT.test(llms), name, 'llms.txt content');
   ok(!/resume-guide/i.test(llms), name, 'llms.txt mentions the removed guide');
+  ok(/renamed/i.test(llms) && llms.includes('2024'), name, 'llms.txt must state the rename year');
+  ok(llms.includes('## Leadership') === hasData, name, hasData ? 'llms.txt needs a Leadership list' : 'llms.txt has a Leadership list without published board members');
   ok(/\[Contact\]\(/.test(llms) === contact, name, contact ? 'llms.txt lacks the Contact line' : 'llms.txt has a Contact line although the form is not ready');
   ok(existsSync(join(dir, 'og.png')) && existsSync(join(dir, 'favicon.svg')), name, 'og.png / favicon missing');
 }
@@ -620,10 +668,12 @@ async function contactDemo(dir) {
 // ---------- Supabase build path against a local mock server ----------
 async function supabaseBuild() {
   console.log('\n== supabase build path (mock server) ==');
-  const ID1 = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', ID2 = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', ID3 = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const ID1 = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', ID2 = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', ID3 = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', ID4 = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
   const webp = await sharp({ create: { width: 1000, height: 1000, channels: 3, background: '#336699' } }).webp().toBuffer();
   // Safari uploads JPEG data under a name that still ends in .webp; the build must convert it.
   const jpeg = await sharp({ create: { width: 900, height: 900, channels: 3, background: '#996633' } }).jpeg().toBuffer();
+  // A small photo (400x400) that is heavy in bytes: lossless WebP of random noise. The build must re-encode it.
+  const noise = await sharp(Buffer.from(Array.from({ length: 400 * 400 * 3 }, () => Math.floor(Math.random() * 256))), { raw: { width: 400, height: 400, channels: 3 } }).webp({ lossless: true }).toBuffer();
   const log = [];
   let mode = 'ok';
   // How the mock answers rpc/contact_form_ready: 'ready' (200 true), 'missing' (404, form not installed), 'error' (500).
@@ -642,6 +692,7 @@ async function supabaseBuild() {
       return json([
         { profile_id: ID1, full_name: 'Mock Board Person', class_year: 2027, school: 'Mock School', major: 'Mock Major', linkedin_url: 'https://www.linkedin.com/in/mock-person', headshot_path: `${ID1}/abc123.webp`, board_title: 'Mock President', sort_order: 1 },
         { profile_id: ID3, full_name: 'Mock Safari Person', class_year: 2028, school: null, major: 'Mock School of Testing, Mock Second Major', linkedin_url: null, headshot_path: `${ID3}/fromsafari.webp`, board_title: null, sort_order: null },
+        { profile_id: ID4, full_name: 'Mock Heavy Photo Person', class_year: 2028, school: null, major: 'Mock Major', linkedin_url: null, headshot_path: `${ID4}/heavy.webp`, board_title: null, sort_order: null },
         { profile_id: ID2, full_name: 'Mock Member Two', class_year: 2028, school: null, major: null, linkedin_url: null, headshot_path: `${ID2}/broken.webp`, board_title: null, sort_order: null },
       ]);
     }
@@ -650,6 +701,7 @@ async function supabaseBuild() {
       { firm: 'Mock Firm Two', team: null, kind: 'full_time', year: 2025, member_name: null, class_year: null },
     ]);
     if (path === `/storage/v1/object/public/headshots/${ID1}/abc123.webp`) { res.setHeader('content-type', 'image/webp'); return res.end(webp); }
+    if (path === `/storage/v1/object/public/headshots/${ID4}/heavy.webp`) { res.setHeader('content-type', 'image/webp'); return res.end(noise); }
     if (path === `/storage/v1/object/public/headshots/${ID3}/fromsafari.webp`) { res.setHeader('content-type', 'image/jpeg'); return res.end(jpeg); }
     res.statusCode = 404; res.end('not found');
   });
@@ -675,7 +727,8 @@ async function supabaseBuild() {
     ok(broken.status !== 0, 'supabase', 'a 500 from rpc/contact_form_ready must fail the build');
     contactMode = 'ready';
     const pre = await run('node', ['scripts/prebuild.mjs'], { ...process.env, ...env });
-    ok(pre.status === 0 && /2 headshot/.test(pre.stdout), 'supabase', 'prebuild should download exactly two headshots (one WebP, one JPEG from Safari)');
+    ok(pre.status === 0 && /3 headshot/.test(pre.stdout), 'supabase', 'prebuild should download exactly three headshots (one WebP, one JPEG from Safari, one heavy WebP)');
+    ok(noise.length > 150 * 1024, 'supabase', `the heavy test photo must be over 150 KB (is ${noise.length})`);
     ok(new RegExp(`WARNING headshot for ${ID2}`).test(pre.stderr), 'supabase', 'a failed image download should print a warning');
     // Supabase settings present but the form not installed: the site has no contact page.
     contactMode = 'missing';
@@ -699,6 +752,9 @@ async function supabaseBuild() {
     const imgTag = (team.match(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*>`)) || [''])[0];
     ok(/width="1000"/.test(imgTag) && /height="1000"/.test(imgTag), 'supabase', 'headshot img must carry the real width and height');
     ok(imgTag.includes(`/headshots/${ID1}-600.webp 600w`) && imgTag.includes(`/headshots/${ID1}.webp 1000w`) && /sizes="/.test(imgTag), 'supabase', 'headshot img must offer the 600px copy');
+    const heavyOut = existsSync(join(dir, 'headshots', `${ID4}.webp`)) ? statSync(join(dir, 'headshots', `${ID4}.webp`)).size : Infinity;
+    ok(heavyOut < noise.length && heavyOut < 150 * 1024, 'supabase', `a small but heavy photo must be re-encoded (${noise.length} bytes in, ${heavyOut} out)`);
+    ok(/"image":"[^"]*headshots\//.test(team), 'supabase', 'Person structured data needs an image when a headshot is published');
     ok(existsSync(join(dir, 'headshots', `${ID1}-600.webp`)), 'supabase', '600px headshot copy missing from dist');
     const safari = existsSync(join(dir, 'headshots', `${ID3}.webp`)) ? readFileSync(join(dir, 'headshots', `${ID3}.webp`)) : Buffer.alloc(12);
     ok(safari.subarray(0, 4).toString() === 'RIFF' && safari.subarray(8, 12).toString() === 'WEBP', 'supabase', 'a JPEG upload must be converted to WebP at build time');
@@ -782,7 +838,7 @@ async function smoke(dir) {
       await np.goto(origin + p, { waitUntil: 'load' });
       const t = await np.locator('main').innerText();
       const h1 = await np.locator('h1').innerText();
-      ok(t.length > 100 && t.includes(h1), `smoke:nojs:${p}`, `main text missing without JavaScript (${t.length} chars)`);
+      ok(t.length > 80 && t.includes(h1), `smoke:nojs:${p}`, `main text missing without JavaScript (${t.length} chars)`);
       ok(await np.locator('main h1').isVisible(), `smoke:nojs:${p}`, 'h1 not visible without JS');
     }
     await nojs.close();
