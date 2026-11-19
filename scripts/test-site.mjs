@@ -20,7 +20,7 @@ const fail = (where, msg) => { failures++; console.error(`  FAIL [${where}] ${ms
 const ok = (cond, where, msg) => { checks++; if (!cond) fail(where, msg); };
 
 const BANNED = ['empower', 'unlock', 'elevate', 'journey', 'vibrant', 'passionate', 'delve', 'foster', 'comprehensive', 'cutting-edge', 'world-class'];
-const DISCLAIMER = 'Michigan Sustainable Investments is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice. Company names and logos belong to their owners.';
+const DISCLAIMER = 'Michigan Sustainable Investments is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice.';
 const HISTORY = 'Founded in 2019 as the Michigan Impact Investing Symposium. Renamed Michigan Sustainable Investments in 2024.';
 // Wording that was removed on purpose. It must not come back on any page.
 const REMOVED_TEXT = ['Who has spoken at MSI', 'Where the work happens', 'Sustainable finance is a way into banking', 'The program has four parts', 'Common questions', 'Contact details will be posted here', 'Dates will be posted here', 'does not imply sponsorship or endorsement', 'does not speak for it', 'For employers and speakers', 'Executive board'];

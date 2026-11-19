@@ -39,3 +39,7 @@ Going live: see `docs/SETUP.md`. Before launch: `docs/PRELAUNCH.md`.
 ## Soft launch
 
 The site starts hidden from search engines so the board can check it on a real address first. To make it findable, set `searchVisible: true` in `src/data/club.ts`.
+
+## Typefaces
+
+Headings use Source Serif 4 and all other text uses Inter. Both come from npm packages (`@fontsource-variable/source-serif-4`, `@fontsource-variable/inter`) and are served from the site itself. `node scripts/make-assets.mjs` redraws the share image (`public/og.png`) with the same typefaces.

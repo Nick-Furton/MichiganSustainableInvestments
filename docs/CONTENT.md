@@ -18,11 +18,19 @@ Facts live in ONE file (`src/data/club.ts`) so the board can change them without
 - Site name: `Michigan Sustainable Investments`
 - Descriptor: `The sustainable investing club at the University of Michigan.`
 - Header (every page except the home page): the logo (links home), the four section links `Who We Are` · `Placements` · `Leadership` · `Recruitment`, a quiet text link `Member sign-in` (→ /members/), and at most one dark button. The button is `Apply` (→ /recruitment/) while applications are open or scheduled (`applyOffered()` in `src/data/club.ts`); otherwise `Contact` (→ /contact/) when the contact form is switched on; otherwise there is no button. No breadcrumb trail is shown on any page (the BreadcrumbList structured data stays in the page source).
-- Footer notice (every page except the home page): `Michigan Sustainable Investments is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice. Company names and logos belong to their owners.` This one sentence carries the trademark wording for the whole site.
+- Footer notice (every page except the home page): `Michigan Sustainable Investments is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice.` This one sentence carries the trademark wording for the whole site.
 - Footer history line: `Founded in 2019 as the Michigan Impact Investing Symposium. Renamed Michigan Sustainable Investments in 2024.` **The club's history lives here, and in the Organization data for search engines. Pages do not repeat it.**
 - Footer links (every page except the home page), in this order: `Who We Are`, `Placements`, `Leadership`, `Recruitment`, `Contact` (only when the contact form is switched on), `Member sign-in`, `Privacy`.
 - **Say each fact once.** A fact (the speaker firms, the list of instruments, the club's history, the trademark wording, a sign-in sentence) is written in one place and not repeated on the same page or across pages. The test suite checks the main ones. Wording removed on purpose (for example `Who has spoken at MSI`, `Common questions`, `Contact details will be posted here`, `does not speak for it`) is checked to stay out.
 - Placeholder photo: only the home page has one (`src/assets/placeholder/presenting-hero.jpg`). Alt text: `A presenter in a dark suit points to a slide while an audience looks on.` (No caption. Never describe the people as MSI members.)
+
+
+## Look
+
+- Headings and people's names are set in a serif (Source Serif 4). Everything else is Inter. Both typefaces are part of the site's own files; nothing is loaded from another company's servers.
+- Corners are nearly square (buttons, cards, form fields). No hand-drawn underlines, no decorative dashes, no boxes around logos.
+- Yellow (maize) is an accent only: the leaf in the logo, the bar on the application status box, the line under a menu item on hover.
+- Pages are kept tight: sections sit close together and the page is at most 1200px wide, so there are no large empty areas. Do not add a disclaimer under the logo wall; the footer notice is the only one.
 
 ## Home (`/`)
 
