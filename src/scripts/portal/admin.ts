@@ -179,7 +179,7 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
       }
       for (const m of items) {
         const handled = !!m.handled_at;
-        const who = SIMPLE_EMAIL.test(m.email) ? el('a', { href: `mailto:${encodeURIComponent(m.email)}` }, m.email) : m.email;
+        const who = SIMPLE_EMAIL.test(m.email) ? el('a', { href: `mailto:${encodeURIComponent(m.email).replace(/%40/g, '@')}` }, m.email) : m.email;
         const toggle = el('button', { type: 'button', className: 'btn btn-dark btn-sm', textContent: handled ? 'Reopen' : 'Mark handled' });
         toggle.setAttribute('aria-label', `${handled ? 'Reopen' : 'Mark handled'}: message from ${m.name}`);
         toggle.addEventListener('click', () => run(async () => { await api!.setMessageHandled(m.id, !handled); await loadMessages(); }));

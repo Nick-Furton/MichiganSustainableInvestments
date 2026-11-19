@@ -578,7 +578,7 @@ async function contactDemo(dir) {
     const text = await card.first().innerText();
     ok(text.includes(tricky) && text.includes('Second line of the message.') && text.includes('Sample Organization') && text.includes('Speaking at MSI') && text.includes('New'), 'contact demo', `card content: ${text}`);
     ok(await page.evaluate(() => !window.__xss && !document.querySelector('#messages-list img')), 'contact demo', 'message text must never be treated as HTML');
-    ok((await page.getAttribute('#messages-list a[href^="mailto:"]', 'href')) === 'mailto:sample.visitor%40example.com', 'contact demo', 'the email must be a mailto link');
+    ok((await page.getAttribute('#messages-list a[href^="mailto:"]', 'href')) === 'mailto:sample.visitor@example.com', 'contact demo', 'the email must be a mailto link');
     ok(await page.evaluate(() => getComputedStyle(document.querySelector('.message-text')).whiteSpace === 'pre-wrap'), 'contact demo', 'line breaks in the message must be kept');
     await page.click('#messages-list button:text-is("Mark handled")');
     await page.waitForSelector('#messages-list .tag:not(.tag-new)');
