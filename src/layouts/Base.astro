@@ -17,8 +17,9 @@ interface Props {
   crumbs?: Crumb[];        // inner pages: trail after Home (the page itself last)
   jsonLd?: object[];       // extra structured data
   bodyClass?: string;
+  bare?: boolean;           // no site header or footer: the home page is its own navigation
 }
-const { title, description, path, noindex = false, crumbs, jsonLd = [], bodyClass = '' } = Astro.props;
+const { title, description, path, noindex = false, crumbs, jsonLd = [], bodyClass = '', bare = false } = Astro.props;
 const canonical = abs(path);
 const ogImage = abs('og.png');
 const sample = isSample();
@@ -77,11 +78,11 @@ const ld = (o: object) => JSON.stringify(o).replace(/</g, '\\u003c');
   <body class={bodyClass}>
     {sample && <div class="preview-banner" role="status">Preview data — not real members</div>}
     <a class="skip-link" href="#main">Skip to main content</a>
-    <Header current={path} />
+    {!bare && <Header current={path} />}
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer />
+    {!bare && <Footer />}
     <script>
       const els = document.querySelectorAll('.reveal');
       if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {

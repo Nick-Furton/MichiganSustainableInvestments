@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Runs supabase/tests/rls_test.sql against a throwaway local PostgreSQL cluster.
+# Runs supabase/tests/rls_test.sql against a throwaway local PostgreSQL cluster, after loading
+# 01_core.sql, 02_storage.sql and 03_contact.sql twice each (to prove they are safe to re-run).
 # Needs PostgreSQL installed (apt-get install postgresql). Exits non-zero on any failed assertion.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -22,5 +23,8 @@ echo "01_core.sql loaded a second time (idempotent)"
 psql_ "$here/../02_storage.sql"
 psql_ "$here/../02_storage.sql"
 echo "02_storage.sql loaded twice (idempotent)"
+psql_ "$here/../03_contact.sql"
+psql_ "$here/../03_contact.sql"
+echo "03_contact.sql loaded twice (idempotent)"
 psql_ "$here/rls_test.sql" 2>&1 | grep -E "PASS|FAIL|ERROR|ALL PASSED|result|assertions" | sed 's/^psql:[^ ]* //' | tail -n 200
 test "${PIPESTATUS[1]}" = 0 || { echo "DATABASE TESTS FAILED"; exit 1; }

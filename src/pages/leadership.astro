@@ -26,7 +26,7 @@ const people = board.map((p) => ({
   title="Leadership | Michigan Sustainable Investments"
   description="The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan."
 >
-  <PageHead title="Leadership" lead="MSI is run by its executive board. Each member writes their own profile, and the board approves it before it appears here." crumbs={crumbs} />
+  <PageHead title="Leadership" crumbs={crumbs} />
   <section class="section-tight">
     <div class="wrap">
       {m.profiles.length === 0 && (
@@ -35,12 +35,7 @@ const people = board.map((p) => ({
           <a class="arrow-link" href={url('members/')}>Member sign-in →</a>
         </div>
       )}
-      {board.length > 0 && (
-        <>
-          <h2 style="margin-bottom:28px">Executive board</h2>
-          <div class="grid-3">{board.map((p) => <Person p={p} />)}</div>
-        </>
-      )}
+      {board.length > 0 && <div class="grid-3">{board.map((p) => <Person p={p} level={2} />)}</div>}
       {rest.length > 0 && (
         <>
           <h2 style="margin:64px 0 28px">Members</h2>

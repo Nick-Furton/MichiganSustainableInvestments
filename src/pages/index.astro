@@ -1,118 +1,61 @@
 ---
 import { Picture } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Person from '../components/Person.astro';
-import PlacementList from '../components/PlacementList.astro';
 import hero from '../assets/placeholder/presenting-hero.jpg';
 import { url } from '../lib/url';
-import { club, numberWord, cap, selectivitySentence } from '../data/club';
-import { loadMembers } from '../lib/members';
+import { getNav } from '../lib/nav';
+import { contactReady } from '../lib/contact';
 
-const m = await loadMembers();
-const board = m.profiles.filter((p) => p.board_title).slice(0, 6);
-const places = m.placements.slice(0, 8);
-const sym = club.symposium;
-const selectivity = selectivitySentence();
+// The home page is one screen: the photo, the name, one line, and links to the four sections.
+// It has no site header or footer and is sized to fit the window without scrolling.
+// Everything else lives on the section pages.
+const nav = await getNav();
+// The second button is Contact us once the contact form is installed; member sign-in then moves to the small print.
+const contact = contactReady();
 const photoAlt = 'A presenter in a dark suit points to a slide while an audience looks on.';
 ---
 <Base
   path=""
+  bare
+  bodyClass="landing-page"
   title="Michigan Sustainable Investments (MSI) | University of Michigan"
   description="Michigan Sustainable Investments (MSI) is the student-run sustainable investing club at the University of Michigan. Founded in 2019. Membership by application."
 >
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div class="hero-text">
-        <p class="eyebrow">University of Michigan · Founded 2019</p>
-        <h1>Michigan's <span class="hl">sustainable investing</span> club</h1>
-        <p class="lead">Michigan Sustainable Investments (MSI) is a student-run finance club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact, and prepare for careers in investment banking, asset management and impact investing. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.</p>
+  <div class="landing">
+    <figure class="landing-photo">
+      <Picture src={hero} alt={photoAlt} formats={['avif', 'webp']} widths={[480, 720, 960, 1280, 1600]} sizes="(max-width: 860px) 100vw, 50vw" loading="eager" fetchpriority="high" decoding="async" />
+    </figure>
+    <div class="landing-panel">
+      <div class="landing-brand">
+        <svg class="landing-mark" viewBox="2 0 62 58" width="64" height="60" aria-hidden="true" focusable="false">
+          <path d="M8 52 L22 22 L33 40 L46 14 L56 34" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M46 13 C46 5 52 1 61 1 C61 10 55 13 46 13 Z" fill="#ffcb05" />
+        </svg>
+        <h1>Michigan <span class="hl">Sustainable</span> Investments</h1>
+        <p class="landing-sub">at the University of Michigan</p>
+      </div>
+      <div class="landing-body">
+        <p class="landing-lead">Welcome to MSI, Michigan's sustainable investing club. Members prepare for careers in investment banking, private equity and asset management.</p>
         <div class="btn-row">
-          <a class="btn btn-outline" href={url('recruitment/')}>Apply</a>
-          <a class="btn btn-dark" href={url('who-we-are/')}>See the program</a>
+          <a class="btn btn-dark" href={url('recruitment/')}>Apply</a>
+          {contact
+            ? <a class="btn btn-outline" href={url('contact/')}>Contact us</a>
+            : <a class="btn btn-outline" href={url('members/')}>Member sign-in</a>}
         </div>
-        <p class="hero-note">Members: <a href={url('members/')}>sign in to update your profile →</a></p>
+        <nav class="landing-nav" aria-label="Main">
+          <ul>
+            {nav.map((i) => (
+              <li>
+                <a href={url(i.path)}>
+                  <span>{i.label}</span>
+                  <svg class="landing-arrow" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
-      <figure class="hero-photo">
-        <Picture src={hero} alt={photoAlt} formats={['avif', 'webp']} widths={[480, 720, 960, 1200]} sizes="(max-width: 900px) 100vw, 46vw" loading="eager" fetchpriority="high" decoding="async" />
-      </figure>
+      <p class="landing-legal">MSI is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice. {contact && <><a href={url('members/')}>Member sign-in</a> · </>}<a href={url('privacy/')}>Privacy</a></p>
     </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <h2>What members do</h2>
-        <p>The program has four parts.</p>
-      </div>
-      <div class="grid-2">
-        <div class="card reveal"><span class="marker"></span><h3>Investing education</h3><p>Modules teach how investors evaluate a deal for financial return and for impact. Topics run from public equities and green bonds to venture capital and microfinance.</p></div>
-        <div class="card reveal"><span class="marker"></span><h3>Hands-on projects</h3><p>Members apply the material in team projects and present their conclusions.</p></div>
-        <div class="card reveal"><span class="marker"></span><h3>Professional development</h3><p>Sessions prepare members for finance recruiting, from résumés to interviews.</p></div>
-        <div class="card reveal"><span class="marker"></span><h3>Speakers and the Symposium</h3><p>{`The club hosts investors and operators on campus. ${cap(numberWord(sym.count))} symposia have been held since ${sym.firstYear}.`}</p></div>
-      </div>
-      <p class="link-row"><a class="arrow-link" href={url('who-we-are/')}>More about who we are →</a></p>
-    </div>
-  </section>
-
-  <section class="section band-white">
-    <div class="wrap split">
-      <div class="reveal">
-        <h2>Sustainable finance is a way into banking</h2>
-        <p style="margin-top:20px">Banks, asset managers and funds now staff teams built around the energy transition. MSI members study the instruments those teams use: green bonds, public equities, clean-energy project finance and venture capital.</p>
-        <p><a class="arrow-link" href={url('placements/#careers')}>The careers members prepare for →</a></p>
-      </div>
-      <div class="card reveal">
-        <h3 class="list-title">Where the work happens</h3>
-        <ul class="check-list">
-          <li>Energy transition and renewables investment banking</li>
-          <li>Power and utilities coverage</li>
-          <li>Sustainable finance and green bond desks</li>
-          <li>ESG research and asset management</li>
-          <li>Impact investing and climate venture capital</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  {club.speakerFirms.length > 0 && (
-    <section class="section">
-      <div class="wrap">
-        <div class="reveal">
-          <h2>Who has spoken at MSI</h2>
-          <p style="margin-top:16px">{`Symposium speakers from ${sym.firstYear} to ${sym.lastYear} have come from:`}</p>
-          <ul class="speakers">{club.speakerFirms.map((f) => <li>{f}</li>)}</ul>
-          <p class="small">Affiliations as listed in symposium programs. Naming a firm does not imply sponsorship or endorsement.</p>
-        </div>
-      </div>
-    </section>
-  )}
-
-  {board.length > 0 && (
-    <section class="section band-white">
-      <div class="wrap">
-        <div class="section-head reveal"><h2>Leadership</h2><p>The executive board.</p></div>
-        <div class="grid-3">{board.map((p) => <Person p={p} />)}</div>
-        <p style="margin-top:28px"><a class="arrow-link" href={url('leadership/')}>Meet the leadership →</a></p>
-      </div>
-    </section>
-  )}
-
-  {places.length > 0 && (
-    <section class="section">
-      <div class="wrap prose-wide">
-        <div class="section-head reveal"><h2>Where members go</h2><p>Offers accepted by members, self-reported.</p></div>
-        <PlacementList items={places} />
-        <p style="margin-top:28px"><a class="arrow-link" href={url('placements/')}>All placements →</a></p>
-      </div>
-    </section>
-  )}
-
-  <section class="section-tight" style="padding-bottom:clamp(40px,6vw,80px)">
-    <div class="wrap">
-      <div class="cta-band reveal on-dark">
-        <div><h2>Join MSI</h2><p>Membership is by application. Dates for the next cycle are posted on the Recruitment page.</p>{selectivity && <p>{selectivity}</p>}</div>
-        <div class="btn-row"><a class="btn btn-maize" href={url('recruitment/')}>How to apply</a></div>
-      </div>
-    </div>
-  </section>
+  </div>
 </Base>

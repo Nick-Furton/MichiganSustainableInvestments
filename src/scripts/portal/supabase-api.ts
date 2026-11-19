@@ -1,7 +1,7 @@
 // Real data layer. The database (row-level security + my_access()) decides who can do what;
 // nothing here trusts the Google "hd" hint or user_metadata for authorization.
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { Api, Profile, Placement, ReviewItem, BoardRow, Access } from './types';
+import type { Api, Profile, Placement, ReviewItem, BoardRow, Access, ContactMessage } from './types';
 
 const URL_ = import.meta.env.PUBLIC_SUPABASE_URL as string;
 const KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
@@ -154,6 +154,21 @@ export function createSupabaseApi(): Api {
     async setBoard(profileId, title, order) {
       if (!title.trim()) check(await sb().from('board_positions').delete().eq('profile_id', profileId));
       else check(await sb().from('board_positions').upsert({ profile_id: profileId, title: title.trim(), sort_order: order }, { onConflict: 'profile_id' }));
+    },
+    async listMessages() {
+      const r = await sb().from('contact_messages').select('id, created_at, name, email, organization, topic, message, handled_at, handled_by').order('created_at', { ascending: false });
+      // The table is missing until supabase/03_contact.sql has been run.
+      if (r.error && (r.error.code === 'PGRST205' || r.error.code === '42P01' || /schema cache|does not exist/i.test(r.error.message))) return null;
+      return check(r) as ContactMessage[];
+    },
+    async setMessageHandled(id, handled) {
+      check(await sb().rpc('set_contact_handled', { message_id: id, handled }));
+    },
+    async deleteMessage(id) {
+      check(await sb().from('contact_messages').delete().eq('id', id));
+    },
+    async deleteHandledMessages() {
+      check(await sb().from('contact_messages').delete().not('handled_at', 'is', null));
     },
     async exportAll() {
       const profiles = check(await sb().from('profiles').select('*').order('full_name')) as Record<string, unknown>[];
