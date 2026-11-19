@@ -27,8 +27,8 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
         <h1>Michigan's <span class="hl">sustainable investing</span> club</h1>
         <p class="lead">Michigan Sustainable Investments (MSI) is a student-run finance club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact, and prepare for careers in investment banking, asset management and impact investing. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.</p>
         <div class="btn-row">
-          <a class="btn btn-outline" href={url('join/')}>Apply</a>
-          <a class="btn btn-dark" href={url('program/')}>See the program</a>
+          <a class="btn btn-outline" href={url('recruitment/')}>Apply</a>
+          <a class="btn btn-dark" href={url('who-we-are/')}>See the program</a>
         </div>
         <p class="hero-note">Members: <a href={url('members/')}>sign in to update your profile →</a></p>
       </div>
@@ -50,7 +50,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
         <div class="card reveal"><span class="marker"></span><h3>Professional development</h3><p>Sessions prepare members for finance recruiting, from résumés to interviews.</p></div>
         <div class="card reveal"><span class="marker"></span><h3>Speakers and the Symposium</h3><p>{`The club hosts investors and operators on campus. ${cap(numberWord(sym.count))} symposia have been held since ${sym.firstYear}.`}</p></div>
       </div>
-      <p class="link-row"><a class="arrow-link" href={url('program/')}>Read about the program →</a> <a class="arrow-link" href={url('sustainable-investing/')}>The five kinds of investment members study →</a></p>
+      <p class="link-row"><a class="arrow-link" href={url('who-we-are/')}>More about who we are →</a></p>
     </div>
   </section>
 
@@ -59,7 +59,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
       <div class="reveal">
         <h2>Sustainable finance is a way into banking</h2>
         <p style="margin-top:20px">Banks, asset managers and funds now staff teams built around the energy transition. MSI members study the instruments those teams use: green bonds, public equities, clean-energy project finance and venture capital.</p>
-        <p><a class="arrow-link" href={url('program/#careers')}>How the program prepares members →</a></p>
+        <p><a class="arrow-link" href={url('placements/#careers')}>The careers members prepare for →</a></p>
       </div>
       <div class="card reveal">
         <h3 class="list-title">Where the work happens</h3>
@@ -92,7 +92,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
       <div class="wrap">
         <div class="section-head reveal"><h2>Leadership</h2><p>The executive board.</p></div>
         <div class="grid-3">{board.map((p) => <Person p={p} />)}</div>
-        <p style="margin-top:28px"><a class="arrow-link" href={url('board/')}>Meet the board →</a></p>
+        <p style="margin-top:28px"><a class="arrow-link" href={url('leadership/')}>Meet the leadership →</a></p>
       </div>
     </section>
   )}
@@ -110,8 +110,8 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
   <section class="section-tight" style="padding-bottom:clamp(40px,6vw,80px)">
     <div class="wrap">
       <div class="cta-band reveal on-dark">
-        <div><h2>Join MSI</h2><p>Membership is by application. Dates for the next cycle are posted on the Join page.</p>{selectivity && <p>{selectivity}</p>}</div>
-        <div class="btn-row"><a class="btn btn-maize" href={url('join/')}>How to apply</a></div>
+        <div><h2>Join MSI</h2><p>Membership is by application. Dates for the next cycle are posted on the Recruitment page.</p>{selectivity && <p>{selectivity}</p>}</div>
+        <div class="btn-row"><a class="btn btn-maize" href={url('recruitment/')}>How to apply</a></div>
       </div>
     </div>
   </section>

@@ -6,7 +6,7 @@ import { url, abs } from '../lib/url';
 import { club } from '../data/club';
 import { loadMembers } from '../lib/members';
 const m = await loadMembers();
-const crumbs = [{ name: 'Board', path: 'board/' }];
+const crumbs = [{ name: 'Leadership', path: 'leadership/' }];
 const board = m.profiles.filter((p) => p.board_title);
 const rest = m.profiles.filter((p) => !p.board_title);
 const people = board.map((p) => ({
@@ -19,14 +19,14 @@ const people = board.map((p) => ({
 }));
 ---
 <Base
-  path="board/"
+  path="leadership/"
   crumbs={crumbs}
   noindex={m.profiles.length === 0}
   jsonLd={people}
-  title="Board | Michigan Sustainable Investments"
+  title="Leadership | Michigan Sustainable Investments"
   description="The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan."
 >
-  <PageHead title="Board" lead="MSI is run by its executive board. Each member writes their own profile, and the board approves it before it appears here." crumbs={crumbs} />
+  <PageHead title="Leadership" lead="MSI is run by its executive board. Each member writes their own profile, and the board approves it before it appears here." crumbs={crumbs} />
   <section class="section-tight">
     <div class="wrap">
       {m.profiles.length === 0 && (

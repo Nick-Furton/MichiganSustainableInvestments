@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import PlacementList from '../components/PlacementList.astro';
+import { url } from '../lib/url';
 import { loadMembers } from '../lib/members';
 const m = await loadMembers();
 const crumbs = [{ name: 'Placements', path: 'placements/' }];
@@ -11,7 +12,6 @@ const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'n
 <Base
   path="placements/"
   crumbs={crumbs}
-  noindex={m.placements.length === 0}
   title="Placements | Michigan Sustainable Investments"
   description="Internship and full-time offers accepted by members of Michigan Sustainable Investments (MSI), self-reported and listed by year."
 >
@@ -19,7 +19,10 @@ const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'n
   <section class="section-tight">
     <div class="wrap prose-wide">
       {m.placements.length === 0 ? (
-        <div class="empty"><p>MSI publishes placements as members report them. None have been approved for publication yet.</p></div>
+        <div class="empty">
+          <p>MSI publishes placements as members report them. None have been approved for publication yet.</p>
+          <a class="arrow-link" href={url('members/')}>Members: sign in to add yours →</a>
+        </div>
       ) : (
         <>
           {years.map((y) => (
@@ -31,6 +34,18 @@ const updated = new Date().toLocaleDateString('en-US', { month: 'long', year: 'n
           <p class="small">{`Updated ${updated}. Firm names identify employers only and do not imply sponsorship or endorsement.`}</p>
         </>
       )}
+    </div>
+  </section>
+  <section class="section-tight">
+    <div class="wrap prose">
+      <h2 id="careers">Careers members prepare for</h2>
+      <p>Sustainable finance is now a line of business at banks, asset managers and funds. Members use MSI to prepare for roles in:</p>
+      <ul>
+        <li><strong>Investment banking.</strong> Energy transition, renewables, and power and utilities groups advise on and finance the build-out of clean power.</li>
+        <li><strong>Sustainable finance and capital markets.</strong> Desks that structure green and sustainability-linked bonds.</li>
+        <li><strong>Asset management and research.</strong> Funds and analysts that weigh environmental, social and governance factors in public markets.</li>
+        <li><strong>Impact investing and venture capital.</strong> Funds that back companies with a measurable social or environmental goal.</li>
+      </ul>
     </div>
   </section>
 </Base>

@@ -1,0 +1,59 @@
+---
+import { Picture } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import wide from '../assets/placeholder/presenting-wide.jpg';
+import { club, numberWord, listAnd } from '../data/club';
+const crumbs = [{ name: 'Who We Are', path: 'who-we-are/' }];
+const sym = club.symposium;
+---
+<Base
+  path="who-we-are/"
+  crumbs={crumbs}
+  title="Who We Are | Michigan Sustainable Investments"
+  description="Michigan Sustainable Investments (MSI) is the student-run sustainable investing club at the University of Michigan. What the club does and who has spoken."
+>
+  <PageHead title="Who we are" lead="Michigan Sustainable Investments (MSI) is the sustainable investing club at the University of Michigan. It was founded in 2019 and is run entirely by students." crumbs={crumbs} />
+  <section class="section-tight">
+    <div class="wrap">
+      <figure class="photo prose-wide" style="margin:0 0 56px;border-radius:16px;overflow:hidden;max-height:560px">
+        <Picture src={wide} alt="A presenter in a dark suit points to a slide while an audience looks on." formats={['avif', 'webp']} widths={[640, 960, 1280, 1800]} sizes="(max-width: 1440px) 100vw, 1296px" loading="lazy" decoding="async" style="object-fit:cover;width:100%;max-height:560px" />
+      </figure>
+      <div class="prose">
+        <h2>What we do</h2>
+        <p>MSI teaches undergraduates how capital is allocated when return and impact both count. Members study public equities, green bonds, venture capital, microfinance and clean-energy finance. They hear directly from people who invest for a living.</p>
+        <h2>The program</h2>
+        <p>The program has four parts.</p>
+        <h3>Investing education</h3>
+        <p>Modules cover how investors evaluate a deal for financial return and for impact. Members work through the main instruments: public equities screened on environmental, social and governance factors; green bonds; venture capital for mission-driven companies; microfinance; and clean-energy project finance.</p>
+        <h3>Hands-on projects</h3>
+        <p>Members apply the material in team projects and present their work to the club.</p>
+        <h3>Professional development</h3>
+        <p>Sessions cover finance recruiting: building a résumé, networking and interviewing.</p>
+        <h3>Speakers and the Symposium</h3>
+        <p>{`MSI hosts practitioners on campus. Its flagship event, founded as the ${club.formerName}, ran ${numberWord(sym.count)} times between ${sym.firstYear} and ${sym.lastYear}. Speakers have come from ${listAnd(club.speakerFirms)}.`}</p>
+      </div>
+      {club.speakerFirms.length > 0 && (
+        <div class="spoken">
+          <h2>Who has spoken at MSI</h2>
+          <p style="margin-top:16px">{`Symposium speakers from ${sym.firstYear} to ${sym.lastYear} have come from:`}</p>
+          <ul class="speakers">{club.speakerFirms.map((f) => <li>{f}</li>)}</ul>
+          <p class="small">Affiliations as listed in symposium programs. Naming a firm does not imply sponsorship or endorsement.</p>
+        </div>
+      )}
+      <div class="prose employers">
+        <h2>For employers and speakers</h2>
+        <p>MSI connects firms working in sustainable finance with University of Michigan undergraduates who study it.</p>
+        <h3>Speak to members</h3>
+        <p>{`Lead a session on your team's work. Past speakers have come from ${listAnd(club.speakerFirms)}.`}</p>
+        <h3>Meet members</h3>
+        <p>Host a coffee chat, an office visit or a recruiting session.</p>
+        <h3>Support the symposium</h3>
+        <p>Sponsor the club's flagship event or join a panel.</p>
+        {club.contactEmail
+          ? <p>Write to the VP of External at <a href={`mailto:${club.contactEmail}`}>{club.contactEmail}</a>.</p>
+          : <p>Contact details will be posted here.</p>}
+      </div>
+    </div>
+  </section>
+</Base>

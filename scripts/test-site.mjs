@@ -55,7 +55,7 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false }) {
   console.log(`\n== ${name} ==`);
   const files = walk(dir);
   const pages = files.filter((f) => f.endsWith('.html'));
-  ok(pages.length >= 13, name, `expected at least 13 HTML pages, found ${pages.length}`);
+  ok(pages.length >= 11, name, `expected at least 11 HTML pages, found ${pages.length}`);
   const titles = new Map(), descs = new Map();
   const ids = new Map();
   const htmlOf = new Map(pages.map((p) => [p, readFileSync(p, 'utf8')]));
@@ -143,18 +143,31 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false }) {
   const home = htmlOf.get(join(dir, 'index.html'));
   const nav = /<nav class="nav"[\s\S]*?<\/nav>/.exec(home)[0];
   const labels = [...nav.matchAll(/<li><a [^>]*>([^<]+)<\/a><\/li>/g)].map((m) => m[1]);
-  ok(labels.slice(0, 4).join('|') === 'Home|Sustainable investing|Program|Board', name, `nav order should start Home, Sustainable investing, Program, Board (got ${labels.join(', ')})`);
-  ok(labels.includes('Board') && labels.includes('Join') && labels.includes('For employers') && !labels.includes('About') && !labels.includes('Team'), name, 'nav must always have Board, no About or Team');
-  ok(labels.includes('Placements') === hasData, name, hasData ? 'Placements should be in the nav' : 'Placements must be absent from the nav when empty');
+  ok(labels.join('|') === 'Who We Are|Placements|Leadership|Recruitment', name, `nav must be exactly Who We Are, Placements, Leadership, Recruitment (got ${labels.join(', ')})`);
+  for (const [p, html] of htmlOf) {
+    const n = /<nav class="nav"[\s\S]*?<\/nav>/.exec(html);
+    const l = n ? [...n[0].matchAll(/<li><a [^>]*>([^<]+)<\/a><\/li>/g)].map((m) => m[1]).join('|') : '';
+    ok(l === 'Who We Are|Placements|Leadership|Recruitment', `${name}:nav`, `${pathOfFile(p)} nav is "${l}"`);
+  }
   ok(!existsSync(join(dir, 'about')) && !existsSync(join(dir, 'team')), name, 'About and Team pages must not exist');
-  ok(existsSync(join(dir, 'board/index.html')) && existsSync(join(dir, 'sustainable-investing/index.html')), name, 'Board and Sustainable investing pages must exist');
-  const si = htmlOf.get(join(dir, 'sustainable-investing/index.html'));
-  ok([...si.matchAll(/<h2 id="([a-z-]+)">/g)].map((m) => m[1]).join(',') === 'microfinance,impact-venture-capital,green-bonds,esg-equities,clean-energy-finance', name, 'sustainable-investing sections/ids');
-  ok((si.match(/<dt>(How it works|How investors are paid|What it does|What members examine)<\/dt>/g) || []).length === 20 && (si.match(/On record/g) || []).length === 2, name, 'sustainable-investing: 5 x 4 labelled parts and 2 On record lines');
-  ok(/rel="noopener"/.test(si) && (si.match(/href="https:\/\/(www\.nobelprize\.org|www\.icmagroup\.org|treasury\.worldbank\.org)/g) || []).length === 3, name, 'sustainable-investing sources');
+  for (const gone of ['sustainable-investing', 'program', 'employers', 'board', 'join']) ok(!existsSync(join(dir, gone)), name, `/${gone}/ must not exist`);
+  for (const here of ['who-we-are', 'placements', 'leadership', 'recruitment']) ok(existsSync(join(dir, here, 'index.html')), name, `/${here}/ must exist`);
+  const gonePaths = /href="[^"]*\/(sustainable-investing|program|employers|board|join)\/[^"]*"/;
+  ok(![...htmlOf.values()].some((h) => gonePaths.test(h)), name, 'a page still links to a deleted section');
+  const foot = /<footer[\s\S]*?<\/footer>/.exec(home)[0];
+  const footLabels = [...foot.matchAll(/<li><a [^>]*>([^<]+)<\/a><\/li>/g)].map((m) => m[1]);
+  ok(footLabels.slice(0, 6).join('|') === 'Who We Are|Placements|Leadership|Recruitment|Résumé and LinkedIn guide|Privacy', name, `footer links (got ${footLabels.join(', ')})`);
+  const wwa = visibleText(htmlOf.get(join(dir, 'who-we-are/index.html')));
+  ok(['What we do', 'The program', 'Investing education', 'Hands-on projects', 'Professional development', 'Speakers and the Symposium', 'Who has spoken at MSI', 'For employers and speakers', 'Speak to members', 'Meet members', 'Support the symposium'].every((h) => wwa.includes(h)), name, 'who-we-are sections');
+  const plHtml = htmlOf.get(join(dir, 'placements/index.html'));
+  ok(/<h2 id="careers">Careers members prepare for<\/h2>/.test(plHtml) && (plHtml.match(/<li><strong>/g) || []).length === 4, name, 'placements careers section');
+  ok(!/noindex/.test((/<meta name="robots" content="([^"]*)"/.exec(plHtml) || [])[1] || ''), name, 'placements must be indexable even when empty');
+  ok(hasData || /Members: sign in to add yours/.test(plHtml), name, 'empty placements needs the sign-in link');
+  const recr = visibleText(htmlOf.get(join(dir, 'recruitment/index.html')));
+  ok(/Leadership and Placements pages/.test(recr) && !/Board and Placements/.test(recr), name, 'recruitment FAQ wording');
   ok(!/Key facts|fact-num/.test(home), name, 'home facts strip must be gone');
-  ok(!/students applied/.test(home + htmlOf.get(join(dir, 'join/index.html'))), name, 'selectivity sentence must not show while empty');
-  ok(hasData === /Where members go/.test(home) && hasData === />Leadership</.test(home), name, 'home Leadership / Where members go sections must match data');
+  ok(!/students applied/.test(home + htmlOf.get(join(dir, 'recruitment/index.html'))), name, 'selectivity sentence must not show while empty');
+  ok(hasData === /Where members go/.test(home) && hasData === /<h2>Leadership<\/h2>/.test(home), name, 'home Leadership / Where members go sections must match data');
   // JS bundles: demo code only in sample builds
   const js = walk(dir).filter((f) => f.endsWith('.js')).map((f) => readFileSync(f, 'utf8')).join('\n');
   ok(sample === js.includes('sample.member'), name, sample ? 'demo mode missing from sample build' : 'demo/sample code compiled into production build');
@@ -163,8 +176,8 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false }) {
   const sm = existsSync(join(dir, 'sitemap-0.xml')) ? readFileSync(join(dir, 'sitemap-0.xml'), 'utf8') : '';
   ok(sm.includes('/members/resume-guide/'), name, 'sitemap lacks resume guide');
   ok(!/\/members\/(profile|admin)?\/?<|\/members\/<|\/404/.test(sm), name, 'sitemap includes members area or 404');
-  ok(hasData ? sm.includes('/board/') : !sm.includes('/board/'), name, 'sitemap board entry should follow data');
-  ok(sm.includes('/sustainable-investing/') && !sm.includes('/about/') && !sm.includes('/team/'), name, 'sitemap: sustainable-investing in, about and team out');
+  ok(hasData ? sm.includes('/leadership/') : !sm.includes('/leadership/'), name, 'sitemap leadership entry should follow data');
+  ok(sm.includes('/placements/') && sm.includes('/who-we-are/') && sm.includes('/recruitment/') && !/\/(sustainable-investing|program|employers|board|join)\//.test(sm) && !sm.includes('/about/') && !sm.includes('/team/'), name, 'sitemap: four sections in (placements even when empty), deleted pages, about and team out');
   if (base !== '/') ok(sm.includes(base), name, 'sitemap lacks base path');
   ok(existsSync(join(dir, 'robots.txt')) && /Sitemap:/.test(readFileSync(join(dir, 'robots.txt'), 'utf8')), name, 'robots.txt with sitemap');
   const llms = readFileSync(join(dir, 'llms.txt'), 'utf8');
@@ -208,10 +221,10 @@ async function a11y(prodDir, sampleDir) {
   const prod = await serve(prodDir);
   for (const p of pagePaths(prodDir)) await run(prod.origin, p, 1280, `prod ${p}`);
   await run(prod.origin, '/', 390, 'prod / @390');
-  await run(prod.origin, '/join/', 390, 'prod /join/ @390');
+  await run(prod.origin, '/recruitment/', 390, 'prod /recruitment/ @390');
   prod.close();
   const sample = await serve(sampleDir);
-  for (const p of ['/', '/board/', '/placements/', '/sustainable-investing/']) await run(sample.origin, p, 1280, `sample ${p}`);
+  for (const p of ['/', '/leadership/', '/placements/', '/who-we-are/']) await run(sample.origin, p, 1280, `sample ${p}`);
   await run(sample.origin, '/', 390, 'sample / @390');
   await run(sample.origin, '/members/profile/?demo=1', 1280, 'profile demo', (pg) => pg.waitForSelector('[data-state=ready]:not([hidden])'));
   await run(sample.origin, '/members/profile/?demo=1', 390, 'profile demo @390', (pg) => pg.waitForSelector('[data-state=ready]:not([hidden])'));
@@ -314,8 +327,8 @@ async function supabaseBuild() {
     checkVariant('supabase mock data', dir, { data: true });
     ok(existsSync(join(dir, 'headshots', `${ID1}.webp`)), 'supabase', 'headshot file missing from dist');
     ok(!existsSync(join(dir, 'headshots', `${ID2}.webp`)), 'supabase', 'failed headshot must not be shipped');
-    const team = readFileSync(join(dir, 'board/index.html'), 'utf8');
-    ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Board page lacks mock data');
+    const team = readFileSync(join(dir, 'leadership/index.html'), 'utf8');
+    ok(team.includes('Mock Board Person') && team.includes('Mock President') && team.includes('Mock Member Two'), 'supabase', 'Leadership page lacks mock data');
     ok(team.includes('Mock Major') && !team.includes('Mock School'), 'supabase', 'profiles must show the major and never the school');
     ok(team.includes('Mock Second Major') && !team.includes('Mock School of Testing'), 'supabase', 'a school typed into the major box must be dropped');
     const imgTag = (team.match(new RegExp(`<img[^>]*src="/headshots/${ID1}\\.webp"[^>]*>`)) || [''])[0];
@@ -370,13 +383,13 @@ async function smoke(dir) {
       }
       await ctx.close();
     }
-    // Header must fit on one row at common desktop widths (hamburger takes over below 1401px).
-    for (const width of [1401, 1440, 1600, 1920]) {
+    // Header must fit on one row at common desktop widths (hamburger takes over below 1130px).
+    for (const width of [1130, 1280, 1440, 1600, 1920]) {
       const hc = await browser.newContext({ viewport: { width, height: 900 } });
       const hp = await hc.newPage();
       await hp.goto(origin + '/', { waitUntil: 'load' });
       const m = await hp.evaluate(() => { const h = document.querySelector('.header-inner'); const n = document.querySelector('.nav'); return { sw: h.scrollWidth, cw: h.clientWidth, h: h.getBoundingClientRect().height, nav: n.getBoundingClientRect().height }; });
-      ok(m.sw <= m.cw + 1 && m.h < 130 && m.nav < 70, `smoke:header@${width}`, `header does not fit (scroll ${m.sw} > ${m.cw}, height ${m.h})`);
+      ok(m.sw <= m.cw + 1 && m.h < 130 && m.nav < 50, `smoke:header@${width}`, `header does not fit (scroll ${m.sw} > ${m.cw}, height ${m.h})`);
       await hc.close();
     }
     // Mobile nav with the keyboard

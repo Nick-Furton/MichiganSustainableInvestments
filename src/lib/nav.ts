@@ -1,17 +1,11 @@
-import { loadMembers } from './members';
-
 export type NavItem = { label: string; path: string };
 
-// Board is always in the nav. Placements appears only when at least one approved entry exists.
+// Four sections, always shown, in this order.
 export async function getNav(): Promise<NavItem[]> {
-  const m = await loadMembers();
-  const items: NavItem[] = [
-    { label: 'Home', path: '' },
-    { label: 'Sustainable investing', path: 'sustainable-investing/' },
-    { label: 'Program', path: 'program/' },
-    { label: 'Board', path: 'board/' },
+  return [
+    { label: 'Who We Are', path: 'who-we-are/' },
+    { label: 'Placements', path: 'placements/' },
+    { label: 'Leadership', path: 'leadership/' },
+    { label: 'Recruitment', path: 'recruitment/' },
   ];
-  if (m.placements.length) items.push({ label: 'Placements', path: 'placements/' });
-  items.push({ label: 'Join', path: 'join/' }, { label: 'For employers', path: 'employers/' });
-  return items;
 }

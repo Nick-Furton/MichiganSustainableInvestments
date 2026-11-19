@@ -115,7 +115,7 @@ strong { color: var(--ink); font-weight: 600; }
 .nav-toggle[aria-expanded='true'] .bars::after { transform: translateY(-6px) rotate(-45deg); }
 .nav-cta { display: inline-flex; }
 
-@media (max-width: 1400px) {
+@media (max-width: 1129px) {
   .js .nav-toggle { display: inline-flex; }
   .js .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; background: #fff; border-bottom: 1px solid var(--line); padding: 8px var(--gutter) 24px; flex-direction: column; align-items: stretch; gap: 16px; box-shadow: 0 18px 30px rgba(11,31,58,.08); }
   .js .nav.open { display: flex; }
@@ -194,6 +194,11 @@ strong { color: var(--ink); font-weight: 600; }
 .prose h2:first-child { margin-top: 0; }
 .prose h3 { margin: 28px 0 8px; }
 .prose { max-width: 760px; }
+/* A text column that is also the page wrap stays on the left edge, in line with the page heading. */
+.wrap.prose { max-width: var(--max); }
+.wrap.prose > * { max-width: 760px; }
+.spoken { margin-top: 64px; }
+.prose.employers { margin-top: 64px; }
 .prose-wide .photo { margin: 0 0 48px; border-radius: 16px; overflow: hidden; }
 .photo img { display: block; width: 100%; height: auto; }
 .status-block { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--maize); border-radius: var(--radius); padding: 24px 28px; margin: 8px 0 8px; font-size: 20px; color: var(--ink); max-width: 760px; }

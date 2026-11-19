@@ -13,12 +13,11 @@ if (!base.startsWith('/')) base = '/' + base;
 if (!base.endsWith('/')) base += '/';
 const SAMPLE = process.env.SAMPLE_DATA === '1';
 
-// Team and Placements pages are indexed only when they have approved entries.
+// The Leadership page is indexed only when it has approved profiles.
 const { loadMembers } = await import('./src/lib/members.ts');
 const members = await loadMembers();
 const hidden = new Set(['/404/', '/members/', '/members/profile/', '/members/admin/']);
-if (!members.profiles.length) hidden.add('/board/');
-if (!members.placements.length) hidden.add('/placements/');
+if (!members.profiles.length) hidden.add('/leadership/');
 
 export default defineConfig({
   site: SITE_URL,

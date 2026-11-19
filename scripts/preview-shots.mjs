@@ -32,8 +32,8 @@ mkdirSync('_preview', { recursive: true });
 const shots = [
   ['home-desktop', '/', 1440], ['home-prod-desktop', '/', 1440, { prod: true }],
   ['home-mobile', '/', 390], ['home-mobile-top', '/', 390, { top: true }],
-  ['program-desktop', '/program/', 1440], ['board-desktop', '/board/', 1440], ['board-empty-desktop', '/board/', 1440, { prod: true }], ['placements-desktop', '/placements/', 1440], ['sustainable-investing-desktop', '/sustainable-investing/', 1440, { prod: true }],
-  ['join-desktop', '/join/', 1440], ['resume-guide-desktop', '/members/resume-guide/', 1440],
+  ['who-we-are-desktop', '/who-we-are/', 1440], ['leadership-desktop', '/leadership/', 1440], ['leadership-empty-desktop', '/leadership/', 1440, { prod: true }], ['placements-desktop', '/placements/', 1440], ['placements-empty-desktop', '/placements/', 1440, { prod: true }],
+  ['recruitment-desktop', '/recruitment/', 1440], ['resume-guide-desktop', '/members/resume-guide/', 1440],
   ['members-profile-demo-desktop', '/members/profile/?demo=1', 1440], ['members-admin-demo-desktop', '/members/admin/?demo=1', 1440],
 ];
 const browser = await pw.chromium.launch();
