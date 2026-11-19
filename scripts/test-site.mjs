@@ -2,7 +2,7 @@
 // without the contact form), checks every HTML file, then runs Playwright tests in a real browser. Run: npm test
 import { spawn, spawnSync } from 'node:child_process';
 import sharp from 'sharp';
-import { readdirSync, readFileSync, existsSync, rmSync, statSync, mkdirSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, rmSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { join, extname, resolve } from 'node:path';
@@ -256,6 +256,7 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   const js = walk(dir).filter((f) => f.endsWith('.js')).map((f) => readFileSync(f, 'utf8')).join('\n');
   ok(sample === js.includes('sample.member'), name, sample ? 'demo mode missing from sample build' : 'demo/sample code compiled into production build');
   ok(!js.includes('Preview data'), name, 'banner text in JS');
+  ok(sample === js.includes('msi-demo-contact-messages'), name, sample ? 'demo message store missing from sample build' : 'demo message store compiled into a build that is not a sample build');
   // sitemap / robots / llms
   const sm = existsSync(join(dir, 'sitemap-0.xml')) ? readFileSync(join(dir, 'sitemap-0.xml'), 'utf8') : '';
   ok(!sm.includes('resume-guide'), name, 'sitemap lists the removed resume guide');
@@ -781,7 +782,7 @@ async function smoke(dir) {
       await np.goto(origin + p, { waitUntil: 'load' });
       const t = await np.locator('main').innerText();
       const h1 = await np.locator('h1').innerText();
-      ok(t.length > 150 && t.includes(h1), `smoke:nojs:${p}`, `main text missing without JavaScript (${t.length} chars)`);
+      ok(t.length > 100 && t.includes(h1), `smoke:nojs:${p}`, `main text missing without JavaScript (${t.length} chars)`);
       ok(await np.locator('main h1').isVisible(), `smoke:nojs:${p}`, 'h1 not visible without JS');
     }
     await nojs.close();

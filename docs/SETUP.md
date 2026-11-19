@@ -13,8 +13,10 @@ Allow an afternoon. Nothing here needs coding, only copy and paste.
    5. The site rebuilds on every push, by hand (Actions > Deploy site > Run workflow), and every 6 hours, so approved profiles appear without anyone touching code.
 3. **Create the Supabase project.**
    1. Sign up at supabase.com, create a project (free plan is enough), pick a strong database password and store it.
-   2. SQL Editor > New query: paste all of `supabase/01_core.sql` and Run. Then do the same with `supabase/02_storage.sql`. Both are safe to run again.
+   2. SQL Editor > New query: paste all of `supabase/01_core.sql` and Run. Then do the same with `supabase/02_storage.sql`, and then with `supabase/03_contact.sql` (the contact form). All three are safe to run again. Run them in that order.
    3. Project settings > API: copy the **Project URL** and the **anon public key**. Put them in the GitHub variables `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY`. (The anon key is meant to be public; the database rules protect the data.)
+   4. **The contact form switches itself on.** After you run `supabase/03_contact.sql`, the Contact page and the Contact button appear by themselves on the next publish of the site (push a change, or Actions > Deploy site > Run workflow). Until then the site has no Contact page. Visitors do not sign in to use it.
+   5. **Reading messages.** Sign in as an admin, open Board admin > **Messages**. The tab shows how many are waiting, such as "Messages (2)". Each message has Mark handled (or Reopen) and Delete. **There is no email alert when a message arrives.** Someone on the board needs to open the Messages tab regularly. The database limits each sender to three messages a day and everyone together to twenty an hour.
 4. **Create the Google sign-in client.**
    1. Go to console.cloud.google.com, create a project named for the club.
    2. APIs and Services > OAuth consent screen: User type **External**. Fill the app name and a support email. Scopes: only `openid`, `email`, `profile`.

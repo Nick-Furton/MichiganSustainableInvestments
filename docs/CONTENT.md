@@ -17,53 +17,37 @@ Facts live in ONE file (`src/data/club.ts`) so the board can change them without
 
 - Site name: `Michigan Sustainable Investments`
 - Descriptor: `The sustainable investing club at the University of Michigan.`
-- Nav: `Who We Are` · `Placements` · `Leadership` · `Recruitment` — plus buttons `Member sign-in` and `Apply` (→ /recruitment/). The logo links home. All four are always in the nav and footer.
+- Nav (every page except the home page): `Who We Are` · `Placements` · `Leadership` · `Recruitment` — plus buttons `Member sign-in` and `Apply` (→ /recruitment/). The logo links home. All four are always in the nav and footer. The home page has its own links to the same four sections (see Home).
 - Footer disclaimer (every page): `Michigan Sustainable Investments is a student organization at the University of Michigan. It is not an official unit of the University and does not speak for it. Nothing on this site is investment advice.`
 - Footer history line: `Founded in 2019 as the Michigan Impact Investing Symposium.`
-- Footer links: the four sections, `Résumé and LinkedIn guide`, `Privacy`.
+- Footer links (every page except the home page): `Who We Are`, `Placements`, `Leadership`, `Recruitment`, then `Contact` (only when the contact form is switched on), then `Privacy`.
 - Placeholder photo alt text: `A presenter in a dark suit points to a slide while an audience looks on.` (No caption. Never describe the people as MSI members.)
 
 ## Home (`/`)
 
+The home page is a one-screen landing page. It has no site header and no site footer, and it is built to fit the window without scrolling.
+
 - Title: `Michigan Sustainable Investments (MSI) | University of Michigan`
 - Description: `Michigan Sustainable Investments (MSI) is the student-run sustainable investing club at the University of Michigan. Founded in 2019. Membership by application.`
-- Eyebrow: `University of Michigan · Founded 2019`
-- H1: `Michigan's sustainable investing club`
-- Lead: `Michigan Sustainable Investments (MSI) is a student-run finance club at the University of Michigan. Members learn to evaluate investments on financial return and on environmental and social impact, and prepare for careers in investment banking, asset management and impact investing. Since 2019, the club has brought speakers from firms including Goldman Sachs and Impact Engine to campus.`
-- Buttons: `Apply` → /recruitment/ · `See the program` → /who-we-are/. Small link under them: `Members: sign in to update your profile →` → /members
-- Hero photo: placeholder `presenting-hero.jpg` (portrait, right side).
+- Photo: placeholder `presenting-hero.jpg` (`src/assets/placeholder/presenting-hero.jpg`), on the left on a wide screen. On a narrow screen it becomes a band across the top with the name on it. Alt text is the placeholder alt text under Global.
+- H1: `Michigan Sustainable Investments`, with the club mark and the line `at the University of Michigan`.
+- Lead: `Welcome to MSI, Michigan's sustainable investing club. Members prepare for careers in investment banking, private equity and asset management.`
+- Buttons: `Apply` (to /recruitment/) and a second button that depends on the contact form:
+  - Contact form not switched on: `Member sign-in` (to /members/).
+  - Contact form switched on (see Contact below): `Contact us` (to /contact/). `Member sign-in` then moves to the small print.
+- Section links, in this order: `Who We Are` · `Placements` · `Leadership` · `Recruitment`.
+- Small print: `MSI is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice.` Then, when the contact form is on, `Member sign-in` ·, and always `Privacy`.
+- No member counts, no school names, no section blocks. Everything else lives on the section pages.
 
-**H2: What members do** — intro: `The program has four parts.`
-1. `Investing education` — `Modules teach how investors evaluate a deal for financial return and for impact. Topics run from public equities and green bonds to venture capital and microfinance.`
-2. `Hands-on projects` — `Members apply the material in team projects and present their conclusions.` [CONFIRM]
-3. `Professional development` — `Sessions prepare members for finance recruiting, from résumés to interviews.` [CONFIRM]
-4. `Speakers and the Symposium` — `The club hosts investors and operators on campus. Five symposia have been held since 2019.`
-Link: `More about who we are →` → /who-we-are/
+**The fit-on-one-screen rule.** The page must not scroll, up or sideways, at these window sizes (width x height). The test suite checks every one in a real browser, on the normal build and on a build with the contact form on:
 
-**H2: Sustainable finance is a way into banking**
-- Paragraph: `Banks, asset managers and funds now staff teams built around the energy transition. MSI members study the instruments those teams use: green bonds, public equities, clean-energy project finance and venture capital.`
-- List heading: `Where the work happens`
-  - `Energy transition and renewables investment banking`
-  - `Power and utilities coverage`
-  - `Sustainable finance and green bond desks`
-  - `ESG research and asset management`
-  - `Impact investing and climate venture capital`
-- Link: `The careers members prepare for →` → /placements/#careers
+2560x1440 · 1920x1080 · 1728x1117 · 1536x864 · 1440x900 · 1366x768 · 1366x650 · 1280x720 · 1280x600 · 1180x820 · 1024x768 · 1024x600 · 900x700 · 861x640 · 860x1000 · 820x1180 · 768x1024 · 430x746 · 414x720 · 412x780 · 393x660 · 390x664 · 375x667 · 360x640
 
-**H2: Who has spoken at MSI**
-- Line: `Symposium speakers from 2019 to 2024 have come from:`
-- Plain-text list (no logos): `Goldman Sachs` · `Pfizer` · `Orrick` · `Impact Engine` · `Total Impact Capital`
-- Small note: `Affiliations as listed in symposium programs. Naming a firm does not imply sponsorship or endorsement.`
-
-**H2: Leadership** (only when approved board profiles exist) — line: `The executive board.` — up to 6 cards — link `Meet the leadership →` → /leadership/
-
-**H2: Where members go** (only when approved placements exist) — line: `Offers accepted by members, self-reported.` — up to 8 entries — link `All placements →` → /placements/
-
-**Closing band — H2: Join MSI** — `Membership is by application. Dates for the next cycle are posted on the Recruitment page.` — button `How to apply` → /recruitment/. When selectivity is set in `club.ts`, a line under it: `In {term}, {applied} students applied and {admitted} were admitted.` (hidden otherwise)
+At 320x568 and 844x390 the page may scroll, but nothing may be cut off and the Privacy link must be reachable. If you change the home page text or sizes, run `npm test`: it tells you which window size broke. The styles are the `.landing` block in `src/styles/global.css`. The list of sizes is `FIT_SIZES` in `scripts/test-site.mjs`.
 
 ## Who We Are (`/who-we-are/`)
 
-Absorbs the old Program and For employers pages.
+Absorbs the old Program page.
 
 - Title: `Who We Are | Michigan Sustainable Investments`
 - Description: `Michigan Sustainable Investments (MSI) is the student-run sustainable investing club at the University of Michigan. What the club does and who has spoken.`
@@ -77,22 +61,19 @@ Absorbs the old Program and For employers pages.
   - `Professional development` — `Sessions cover finance recruiting: building a résumé, networking and interviewing.` [CONFIRM]
   - `Speakers and the Symposium` — `MSI hosts practitioners on campus. Its flagship event, founded as the Michigan Impact Investing Symposium, ran five times between 2019 and 2024. Speakers have come from Goldman Sachs, Pfizer, Orrick, Impact Engine and Total Impact Capital.`
 - H2 `Who has spoken at MSI` — same line, plain-text firm list and small note as the home page block.
-- H2 `For employers and speakers` — `MSI connects firms working in sustainable finance with University of Michigan undergraduates who study it.` Then three H3 blocks:
-  - `Speak to members` — `Lead a session on your team's work. Past speakers have come from Goldman Sachs, Pfizer, Orrick, Impact Engine and Total Impact Capital.`
-  - `Meet members` — `Host a coffee chat, an office visit or a recruiting session.`
-  - `Support the symposium` — `Sponsor the club's flagship event or join a panel.`
-  - Contact line: `Write to the VP of External at {contactEmail}.` (If `contactEmail` is empty, show: `Contact details will be posted here.`) [CONFIRM: contact email required before launch]
+- H2 `Sustainable finance is a way into banking` — `Banks, asset managers and funds now staff teams built around the energy transition. MSI members study the instruments those teams use: green bonds, public equities, clean-energy project finance and venture capital.` Then H3 `Where the work happens` with a list: `Energy transition and renewables investment banking` · `Power and utilities coverage` · `Sustainable finance and green bond desks` · `ESG research and asset management` · `Impact investing and climate venture capital`. Link: `Where MSI alumni work →` → /placements/.
 
 ## Placements (`/placements/`)
 
-- Always in the nav and footer, always indexable and in the sitemap (even when the list is empty).
+- Always in the nav and footer, always indexable and in the sitemap.
 - Title: `Placements | Michigan Sustainable Investments`
-- Description: `Internship and full-time offers accepted by members of Michigan Sustainable Investments (MSI), self-reported and listed by year.`
+- Description: `Firms where alumni of Michigan Sustainable Investments (MSI) have worked, in investment banking, private equity and asset management.`
 - H1: `Placements`
-- Lead: `Internship and full-time offers accepted by MSI members. Members report their own placements, and the board approves each entry before it is listed.`
-- Grouped by year, newest first. Each row, plain text: firm · group or team · `Internship` or `Full-time` · member name (only if that member consented to show it) · class year.
-- Footnote: `Updated {Month YYYY}. Firm names identify employers only and do not imply sponsorship or endorsement.`
-- Empty state: `MSI publishes placements as members report them. None have been approved for publication yet.` + link `Members: sign in to add yours →` → /members/
+- Intro line: `MSI alumni have gone on to work at these firms.`
+- Logo wall: three groups, each with an H2, in this order: `Investment banks` · `Private equity and credit` · `Asset management`. Each firm is one tile (24 in all). A tile is the firm's logo, with the firm's name as its alt text. No member names appear in the wall.
+- Trademark note, small, under the wall: `Firm names and logos identify employers only. They are trademarks of their owners and do not imply sponsorship or endorsement.`
+- **Where to edit the list:** `src/data/firms.ts` lists the groups, the firms and each firm's logo file. Logo files are in `public/firms/`; `public/firms/SOURCES.txt` records where each one came from. To add a firm, add its logo file, then add a line to `src/data/firms.ts`. A firm with no logo file is shown as its name in type. Add or remove a firm only on the board's say-so. The page reads each logo's size when the site is built.
+- H2 `Offers by year` (only when members have reported offers that the board approved): H3 year headings, newest first. Each row, plain text: firm · group or team · `Internship` or `Full-time` · member name (only if that member consented to show it) · class year. Footnote: `Updated {Month YYYY}.` When there are no offers, this section is not on the page.
 - H2 `Careers members prepare for` (id `careers`) — intro: `Sustainable finance is now a line of business at banks, asset managers and funds. Members use MSI to prepare for roles in:` [CONFIRM]
   - `Investment banking.` `Energy transition, renewables, and power and utilities groups advise on and finance the build-out of clean power.`
   - `Sustainable finance and capital markets.` `Desks that structure green and sustainability-linked bonds.`
@@ -104,8 +85,7 @@ Absorbs the old Program and For employers pages.
 - Title: `Leadership | Michigan Sustainable Investments`
 - Description: `The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan.`
 - H1: `Leadership`
-- Lead: `MSI is run by its executive board. Each member writes their own profile, and the board approves it before it appears here.`
-- H2 `Executive board`: approved profiles that have a board title, in display order. H2 `Members`: approved profiles without a title, only when there are any. Cards: headshot, name, board title, class year, major, LinkedIn link. Board titles and order are set by an administrator, never by the member.
+- No lead sentence and no `Executive board` heading. Approved profiles that have a board title come first, in display order, each as a card with the person's name as an H2 (so the headings run H1 then H2, with no skipped level). Then H2 `Members`: approved profiles without a title, only when there are any. Cards: headshot, name, board title, class year, major, LinkedIn link. Board titles and order are set by an administrator, never by the member.
 - Empty state (no approved profiles): `Board profiles are being added. Members can sign in to add theirs.` + link `Member sign-in →`. While empty the page is `noindex` and out of the sitemap.
 
 ## Recruitment (`/recruitment/`)
@@ -127,26 +107,29 @@ Absorbs the old Program and For employers pages.
   - `How do I apply?` — `Through the application posted on this page when a cycle opens.`
   - `How do members get listed on the Leadership and Placements pages?` — `Members sign in with their University of Michigan account, fill in a profile and choose what to publish. The board approves each profile before it appears.`
 
-## Résumé and LinkedIn guide (`/members/resume-guide`, public)
+## Contact (`/contact/`)
 
-- Title: `How to list MSI on your résumé and LinkedIn | Michigan Sustainable Investments`
-- Description: `The exact name, format and wording members of Michigan Sustainable Investments (MSI) should use on résumés and LinkedIn.`
-- H1: `How to list MSI on your résumé and LinkedIn`
-- Lead: `Use the same name everywhere. Recruiters, and the software that screens résumés, match on exact text.`
-- H2 `The name` — `Michigan Sustainable Investments (MSI), University of Michigan` (shown as a copyable block). Then: `Write it out in full. "MSI" alone is ambiguous: at Michigan it also means a School of Information degree.`
-- H2 `On your résumé` — a template block:
-  ```
-  Michigan Sustainable Investments (MSI), University of Michigan        [Start] – [End]
-  [Your title]
-  • [What you analyzed or built, with a number]
-  • [What you presented, and to whom]
-  • [What you led or organized, with its size]
-  ```
-  Then three rules: `Start each bullet with what you did.` `Put one number in each bullet.` `Name the instrument or sector you worked on.`
-- H2 `On LinkedIn` — `Add MSI under Experience and choose the club's LinkedIn page from the list, so the entry links to MSI.` `Use your exact title. Board titles are set by the club.`
-- H2 `One-line description` — `If you have room, add: "Student-run sustainable investing club at the University of Michigan, founded 2019."`
-- H2 `What to avoid` — `A title you did not hold.` `Numbers you cannot explain in an interview.` `Abbreviating the club's name.`
-(The bracketed template text on this page is intentional and is the only place square brackets may appear in output.)
+The Contact page exists only when the contact form is switched on. The site checks this each time it is built: it asks the database whether `supabase/03_contact.sql` has been run. Until then there is no Contact page, no link to it, and the home page shows `Member sign-in` as its second button (see Home).
+
+- Title: `Contact | Michigan Sustainable Investments`
+- Description: `Contact Michigan Sustainable Investments (MSI), the sustainable investing club at the University of Michigan.`
+- H1: `Contact`
+- Lead: `Send the MSI board a message.`
+- Fields, in this order:
+  - `Name` — required, up to 120 characters.
+  - `Email` — required.
+  - `Firm, school or organization` — optional, up to 160 characters.
+  - `What is this about?` — required. Choices: `Recruiting or meeting members` · `Speaking at MSI` · `Joining MSI` · `Something else`. None is chosen to start with.
+  - `Message` — required, 10 to 4,000 characters. Hint: `10 to 4,000 characters.`
+  - A hidden field that people never see, labelled `Leave this field empty`. Robots fill it in; a message that fills it is thrown away silently.
+- Button: `Send message`. Under it: `Your message goes to the MSI board. See Privacy.` (`Privacy` links to /privacy/.)
+- While sending, the button reads `Sending…` and cannot be pressed again.
+- On success the form is replaced by: `Your message has been sent to the MSI board.` and a link `Back to the home page`.
+- Field messages: `Enter your name.` · `Enter a valid email address.` · `Choose what this is about.` · `Write at least 10 characters.` · `Keep the message to 4,000 characters or fewer.` · `Keep this to 160 characters or fewer.`
+- Limits, answered by the database: `You have sent three messages today. Try again tomorrow.` (one sender, three a day) · `The form is busy. Try again in an hour.` (twenty an hour for everyone, or 500 unhandled messages waiting).
+- Any other failure: `Your message was not sent. Check your connection and try again.` Whatever the person typed stays in the form.
+- Without JavaScript: a notice says the form needs JavaScript to send.
+- The board reads messages on the admin page, under `Messages` (see Members area). There is no email alert when a message arrives.
 
 ## Members area (not indexed: `noindex`)
 
@@ -155,10 +138,10 @@ Absorbs the old Program and For employers pages.
 - `/members/profile` — H1 `Your profile` — fields: full name; class year; major; LinkedIn URL; headshot; short bio (max 400 characters); placements (firm, group or team, internship or full-time, year). Board title is shown read-only with the note `Set by the board.`
 - Consent heading `Choose what appears on the public site` — checkboxes: `My name, class year and program` · `My headshot` · `My LinkedIn link` · `My placements` · `My name next to my placements`. Note: `Nothing appears publicly until the board approves your profile. You can unpublish or delete your profile at any time.`
 - Buttons: `Save draft` · `Submit for approval` · `Delete my profile`. Status line: `Draft` / `Waiting for board approval` / `Published` / `Changes requested: {note}`.
-- `/members/admin` — H1 `Board admin` — tabs: `Roster` (intro: `People on this list are confirmed members. Approving a profile adds its owner automatically.` Add/remove umich emails, paste a list), `Review` (each submitter's email, a `New` badge for people not yet on the roster, approve / request changes / `Delete` with the confirm `Delete this profile? This cannot be undone.` then `Profile deleted.`; below it a `Published` list with `Unpublish` and a required note), `Board titles` (every submitted or approved profile, name and email; assign title and display order), `Export` (CSV).
+- `/members/admin` — H1 `Board admin` — tabs: `Roster` (intro: `People on this list are confirmed members. Approving a profile adds its owner automatically.` Add/remove umich emails, paste a list), `Review` (each submitter's email, a `New` badge for people not yet on the roster, approve / request changes / `Delete` with the confirm `Delete this profile? This cannot be undone.` then `Profile deleted.`; below it a `Published` list with `Unpublish` and a required note), `Board titles` (every submitted or approved profile, name and email; assign title and display order), `Messages` (contact form messages, newest first; the tab shows how many are waiting, such as `Messages (2)`. Each card has the name, the email as a link, the organization, the topic, the date and time, the message with its line breaks, a `New` or `Handled` tag, `Mark handled` or `Reopen`, and `Delete` (asks first). `Delete all handled` removes every handled message. Empty: `No messages.` If the form is not installed: `The contact form is not switched on. Run supabase/03_contact.sql in Supabase, then republish the site.`), `Export` (CSV).
 
 ## Privacy (`/privacy`)
 
 - Title: `Privacy | Michigan Sustainable Investments`
 - H1: `Privacy`
-- Plain statements: what is collected (name, umich email, class year, major, LinkedIn URL, headshot, bio, placements); why (to publish the Leadership and Placements pages and manage the roster); who sees it (the member and board administrators; the public only sees fields the member chose to publish, after board approval); where it is stored (the club's hosted database); sign-in (Google, limited to basic profile and email); deletion (members can delete their profile at any time from the profile page, which removes it from the next site update); contact (`{contactEmail}`).
+- Plain statements: what is collected (name, umich email, class year, major, LinkedIn URL, headshot, bio, placements); why (to publish the Leadership and Placements pages and manage the roster); who sees it (the member and board administrators; the public only sees fields the member chose to publish, after board approval); where it is stored (the club's hosted database); sign-in (Google, limited to basic profile and email); deletion (members can delete their profile at any time from the profile page, which removes it from the next site update); contact (`{contactEmail}`; when it is empty and the contact form is on, `Use the contact form.` linking to /contact/). When the contact form is on, a `Contact form` section is added: `The contact form stores your name, email address, organization (if you give one) and your message. Only the board can read it. The board deletes a message on request.`

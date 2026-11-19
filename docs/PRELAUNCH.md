@@ -5,18 +5,18 @@ These sentences are used on the site but were drafted from the club's public des
 
 | # | Sentence | File |
 |---|----------|------|
-| 1 | "Members apply the material in team projects and present their conclusions." | `src/pages/index.astro` |
-| 2 | "Sessions prepare members for finance recruiting, from résumés to interviews." | `src/pages/index.astro` |
-| 3 | Dues: "$25 per semester" (Recruitment FAQ, llms.txt) | `src/data/club.ts` (`dues`) |
-| 4 | "Members apply the material in team projects and present their work to the club." | `src/pages/who-we-are.astro` |
-| 5 | "Sessions cover finance recruiting: building a résumé, networking and interviewing." | `src/pages/who-we-are.astro` |
-| 6 | "Sustainable finance is now a line of business at banks, asset managers and funds. Members use MSI to prepare for roles in:" and the four roles listed under it | `src/pages/placements.astro` |
-| 7 | Contact email for the VP of External (required before launch) | `src/data/club.ts` (`contactEmail`) |
+| 1 | Dues: "$25 per semester" (Recruitment FAQ, llms.txt) | `src/data/club.ts` (`dues`) |
+| 2 | "Members apply the material in team projects and present their work to the club." | `src/pages/who-we-are.astro` |
+| 3 | "Sessions cover finance recruiting: building a résumé, networking and interviewing." | `src/pages/who-we-are.astro` |
+| 4 | "Sustainable finance is now a line of business at banks, asset managers and funds. Members use MSI to prepare for roles in:" and the four roles listed under it | `src/pages/placements.astro` |
+| 5 | Contact email for the VP of External (optional once the contact form is on) | `src/data/club.ts` (`contactEmail`) |
 
 The Who We Are page description fits the 165-character limit the site tests enforce.
 
 ## Also do
-- [ ] Contact email: set `contactEmail` in `src/data/club.ts`. Until then the Who We Are and Privacy pages say "Contact details will be posted here."
+- [ ] Contact email: set `contactEmail` in `src/data/club.ts`. Until then the Privacy page says "Contact details will be posted here." (or points to the contact form, once that is on).
+- [ ] Confirm the firm list on the Placements page (`src/data/firms.ts`). The board must agree that every firm and logo belongs there.
+- [ ] Run `supabase/03_contact.sql` to switch on the contact form (see step 3 in `docs/SETUP.md`). Until it is run, the site has no Contact page and the home page shows Member sign-in as its second button.
 - [ ] Social links: fill `social` in `src/data/club.ts`. Empty ones are hidden.
 - [ ] Selectivity line (optional): set `selectivity` in `src/data/club.ts` (term, applied, admitted) to show "In {term}, {applied} students applied and {admitted} were admitted." on the Recruitment and home pages. It stays hidden until all three are set.
 - [ ] Application dates: set `application` in `src/data/club.ts` (state, opens, closes, applyUrl).
