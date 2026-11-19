@@ -1,0 +1,39 @@
+Firm logos shown on the Placements page (src/data/firms.ts lists the firms and their files).
+Each logo is a trademark of its owner and is shown only to identify the firm. It does not imply
+sponsorship or endorsement. Collected November 2026.
+
+From Wikimedia Commons (commons.wikimedia.org), unchanged unless noted:
+apollo.svg              Apollo Global Management logo.svg
+bank-of-america.svg     Bank of America 2018 logo.svg
+blackrock.svg           BlackRock wordmark.svg
+blackstone.svg          The Blackstone Group logo (2).svg. Changed: the black box behind the name was
+                        removed and the lettering set in black, which is the firm's plain wordmark.
+guggenheim.svg          Guggenheim Partners logo.svg
+jefferies.svg           Jefferies logo.svg
+kkr.svg                 Kohlberg Kravis Roberts (logo).svg
+mizuho.svg              Mizuho logo.svg
+morgan-stanley.svg      Morgan Stanley Logo 2024.svg
+morningstar.svg         Morningstar Logo.svg
+santander.svg           Banco Santander Logotipo.svg
+ta-associates.svg       TA Associates logo.svg
+ubs.png                 UBS Logo.png
+william-blair.svg       William Blair wordmark.svg
+
+From each firm's own website (the logo in its page header or footer):
+bregal-sagemount.svg    sagemount.com
+capital-group.svg       capitalgroup.com
+lincoln-international.svg  lincolninternational.com
+marathon-capital.svg    marathoncapital.com
+power-sustainable.png   powersustainable.com
+
+From each firm's own website, adapted for a white background. These sites only publish a version with
+white lettering for dark backgrounds, so the lettering was set in a dark colour. Shapes are unchanged.
+corbin.png              corbincapital.com (lettering to near-black; emblem untouched)
+keybanc.svg             key.com, KeyBanc Capital Markets (lettering to black; red key untouched)
+moelis.svg              moelis.com (lettering to the firm's dark navy)
+silver-point.png        silverpointcapital.com (white artwork to near-black)
+wynnchurch.png          wynnchurch.com (lettering to near-black; blue square untouched)
+
+To replace a logo, drop the new file in this folder under the same name. To add a firm, add the file here
+and a line in src/data/firms.ts. A firm with no `logo` is shown as its name in type. SVG files are shown
+as plain images, so nothing inside them can run; keep them free of scripts all the same.

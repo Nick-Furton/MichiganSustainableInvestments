@@ -1,5 +1,5 @@
 // Demo data layer for ?demo=1 in SAMPLE_DATA builds only. In-memory, no network calls, obviously fake people.
-import type { Api, Profile, Placement, ReviewItem, BoardRow } from './types';
+import type { Api, Profile, Placement, ReviewItem, BoardRow, ContactMessage } from './types';
 
 const mk = (n: string, i: number, status: Profile['status']): Profile => ({
   id: `demo-${i}`, email: `sample.member.${n.toLowerCase()}@umich.edu`, full_name: `Sample Member ${n}`, class_year: 2027, school: 'Ross School of Business',
@@ -7,6 +7,24 @@ const mk = (n: string, i: number, status: Profile['status']): Profile => ({
   show_identity: true, show_headshot: false, show_linkedin: true, show_placements: true, show_name_on_placements: false, status, review_note: null, published: null,
 });
 const wait = () => new Promise((r) => setTimeout(r, 120));
+
+// Contact messages. The Contact page and the admin page are different pages, so the demo store lives in
+// sessionStorage (this tab only, gone when the tab closes). If the browser blocks it, messages last for one page.
+const MESSAGES_KEY = 'msi-demo-contact-messages';
+let messagesInMemory: ContactMessage[] = [];
+function loadMessages(): ContactMessage[] {
+  try { return JSON.parse(sessionStorage.getItem(MESSAGES_KEY) || '[]') as ContactMessage[]; } catch { return messagesInMemory; }
+}
+function saveMessages(list: ContactMessage[]) {
+  messagesInMemory = list;
+  try { sessionStorage.setItem(MESSAGES_KEY, JSON.stringify(list)); } catch { /* blocked: keep it in memory */ }
+}
+/** Called by the Contact page in a sample build with no Supabase settings. Nothing is sent anywhere. */
+export function demoSendMessage(p: { p_name: string; p_email: string; p_organization: string; p_topic: string; p_message: string }) {
+  const list = loadMessages();
+  list.push({ id: `demo-message-${Date.now()}-${list.length}`, created_at: new Date().toISOString(), name: p.p_name, email: p.p_email, organization: p.p_organization, topic: p.p_topic, message: p.p_message, handled_at: null, handled_by: null });
+  saveMessages(list);
+}
 
 export function createDemoApi(): Api {
   const isAdmin = location.pathname.includes('/admin');
@@ -49,6 +67,13 @@ export function createDemoApi(): Api {
     async requestChanges(id) { await wait(); queue = queue.filter((q) => q.profile.id !== id); },
     async listBoard() { return board.map((b) => ({ ...b })); },
     async setBoard(id, title, order) { await wait(); const b = board.find((x) => x.profile_id === id); if (b) { b.title = title; b.sort_order = order; } },
+    async listMessages() { return loadMessages().sort((a, b) => b.created_at.localeCompare(a.created_at)); },
+    async setMessageHandled(id, handled) {
+      await wait();
+      saveMessages(loadMessages().map((m) => (m.id !== id ? m : { ...m, handled_at: handled ? m.handled_at ?? new Date().toISOString() : null, handled_by: handled ? 'sample.member.a@umich.edu' : null })));
+    },
+    async deleteMessage(id) { await wait(); saveMessages(loadMessages().filter((m) => m.id !== id)); },
+    async deleteHandledMessages() { await wait(); saveMessages(loadMessages().filter((m) => !m.handled_at)); },
     async exportAll() { return { profiles: [{ ...mk('A', 1, 'draft') }], placements: myPlacements as unknown as Record<string, unknown>[] }; },
   };
 }

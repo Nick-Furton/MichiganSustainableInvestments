@@ -8,7 +8,7 @@ import PortalStates from '../../components/PortalStates.astro';
   crumbs={[{ name: 'Member sign-in', path: 'members/' }, { name: 'Board admin', path: 'members/admin/' }]}
   noindex
   title="Board admin | Michigan Sustainable Investments"
-  description="Board tools for Michigan Sustainable Investments (MSI): manage the roster, review profiles, set board titles and export data."
+  description="Board tools for Michigan Sustainable Investments (MSI): manage the roster, review profiles, read contact messages, set board titles and export data."
 >
   <PageHead title="Board admin" />
   <section class="section-tight portal-section">
@@ -21,6 +21,7 @@ import PortalStates from '../../components/PortalStates.astro';
           <button class="tab" role="tab" id="tab-roster" aria-controls="panel-roster" aria-selected="true" type="button">Roster</button>
           <button class="tab" role="tab" id="tab-review" aria-controls="panel-review" aria-selected="false" tabindex="-1" type="button">Review</button>
           <button class="tab" role="tab" id="tab-board" aria-controls="panel-board" aria-selected="false" tabindex="-1" type="button">Board titles</button>
+          <button class="tab" role="tab" id="tab-messages" aria-controls="panel-messages" aria-selected="false" tabindex="-1" type="button">Messages</button>
           <button class="tab" role="tab" id="tab-export" aria-controls="panel-export" aria-selected="false" tabindex="-1" type="button">Export</button>
         </div>
         <section id="panel-roster" role="tabpanel" aria-labelledby="tab-roster">
@@ -35,6 +36,7 @@ import PortalStates from '../../components/PortalStates.astro';
         <section id="panel-board" role="tabpanel" aria-labelledby="tab-board" hidden>
           <table class="table"><thead><tr><th scope="col">Person</th><th scope="col">Title</th><th scope="col">Order</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="board-list"></tbody></table>
         </section>
+        <section id="panel-messages" role="tabpanel" aria-labelledby="tab-messages" hidden><div id="messages-list"></div></section>
         <section id="panel-export" role="tabpanel" aria-labelledby="tab-export" hidden>
           <div class="btn-row">
             <button class="btn btn-dark" type="button" id="export-profiles">Profiles (CSV)</button>

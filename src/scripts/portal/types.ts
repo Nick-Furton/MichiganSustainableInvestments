@@ -27,6 +27,11 @@ export type ProfileInput = Omit<Profile, 'id' | 'email' | 'status' | 'review_not
 export type ReviewItem = { profile: Profile; placements: Placement[] };
 export type BoardRow = { profile_id: string; full_name: string; email: string; title: string; sort_order: number };
 
+export type ContactMessage = {
+  id: string; created_at: string; name: string; email: string; organization: string; topic: string; message: string;
+  handled_at: string | null; handled_by: string | null;
+};
+
 export interface Api {
   /** Real data layer is configured (Supabase variables present) or demo mode. */
   configured: boolean;
@@ -52,5 +57,10 @@ export interface Api {
   requestChanges(profileId: string, note: string): Promise<void>;
   listBoard(): Promise<BoardRow[]>;
   setBoard(profileId: string, title: string, order: number): Promise<void>;
+  /** Contact form messages, newest first. null when the contact form is not installed in the database. */
+  listMessages(): Promise<ContactMessage[] | null>;
+  setMessageHandled(id: string, handled: boolean): Promise<void>;
+  deleteMessage(id: string): Promise<void>;
+  deleteHandledMessages(): Promise<void>;
   exportAll(): Promise<{ profiles: Record<string, unknown>[]; placements: Record<string, unknown>[] }>;
 }

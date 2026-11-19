@@ -1,8 +1,9 @@
 ---
 import type { PublicProfile } from '../lib/members';
 import { url } from '../lib/url';
-interface Props { p: PublicProfile; small?: boolean }
-const { p, small = false } = Astro.props;
+interface Props { p: PublicProfile; small?: boolean; level?: 2 | 3 }
+const { p, small = false, level = 3 } = Astro.props;
+const Name = `h${level}` as 'h2' | 'h3';
 const initials = p.full_name.split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const hue = [...p.full_name].reduce((a, c) => a + c.charCodeAt(0), 0) % 4;
 const bgs = ['#0b1f3a', '#14315a', '#1d3f6e', '#243a52'];
@@ -19,7 +20,7 @@ const meta = [p.class_year ? `Class of ${p.class_year}` : '', p.major ?? ''].fil
       : <svg viewBox="0 0 200 200" role="img" aria-label={`Initials avatar for ${p.full_name}`}><rect width="200" height="200" fill={bgs[hue]} /><text x="100" y="118" text-anchor="middle" font-family="Inter Variable, Inter, Arial, sans-serif" font-size="72" font-weight="600" fill="#ffcb05">{initials}</text></svg>}
   </div>
   <div class="person-body">
-    <h3>{p.full_name}</h3>
+    <Name class="person-name">{p.full_name}</Name>
     {p.board_title && <p class="person-title">{p.board_title}</p>}
     {meta.map((m) => <p>{m}</p>)}
     {p.linkedin_url && <p><a href={p.linkedin_url} rel="noopener nofollow">LinkedIn<span class="sr"> profile of {p.full_name}</span></a></p>}

@@ -348,5 +348,101 @@ select t.ok(public.my_access() = 'applicant', 'removed roster member becomes an 
 select t.ok(t.count('select * from public.profiles') = 1, 'removed roster member can still read their own profile');
 reset role;
 
+-- ===== Contact form (03_contact.sql) =====
+-- A visitor (not signed in) can send a message through the one function, and nothing else.
+set role anon;
+select t.ok(public.contact_form_ready(), 'anon can ask whether the contact form is ready');
+select public.send_contact_message('  Pat   Recruiter ', ' Pat@Example.COM ', ' Example Bank ', 'recruiting', '  We would like to meet your members.  ');
+select t.throws('select * from public.contact_messages', 'anon cannot read contact messages');
+select t.throws($$insert into public.contact_messages (name, email, topic, message) values ('x', 'x@example.com', 'other', 'direct insert attempt')$$, 'anon cannot insert a contact message directly');
+select t.throws($$update public.contact_messages set message = 'changed by a visitor'$$, 'anon cannot update contact messages');
+select t.throws('delete from public.contact_messages', 'anon cannot delete contact messages');
+select t.throws($$select public.set_contact_handled('00000000-0000-0000-0000-000000000000', true)$$, 'anon cannot mark a message handled');
+select t.throws($$select public.send_contact_message('', 'a@example.com', '', 'other', 'A message that is long enough.')$$, 'contact: empty name is refused');
+select t.throws($$select public.send_contact_message(repeat('n', 121), 'a@example.com', '', 'other', 'A message that is long enough.')$$, 'contact: over-long name is refused');
+select t.throws($$select public.send_contact_message('A', 'not-an-email', '', 'other', 'A message that is long enough.')$$, 'contact: bad email is refused');
+select t.throws($$select public.send_contact_message('A', 'a b@example.com', '', 'other', 'A message that is long enough.')$$, 'contact: email with a space is refused');
+select t.throws($$select public.send_contact_message('A', null, '', 'other', 'A message that is long enough.')$$, 'contact: missing email is refused');
+select t.throws($$select public.send_contact_message('A', 'a@example.com', repeat('o', 161), 'other', 'A message that is long enough.')$$, 'contact: over-long organization is refused');
+select t.throws($$select public.send_contact_message('A', 'a@example.com', '', 'admin', 'A message that is long enough.')$$, 'contact: unknown topic is refused');
+select t.throws($$select public.send_contact_message('A', 'a@example.com', '', 'other', 'too short')$$, 'contact: too-short message is refused');
+select t.throws($$select public.send_contact_message('A', 'a@example.com', '', 'other', repeat('m', 4001))$$, 'contact: over-long message is refused');
+select public.send_contact_message('Robot', 'robot@example.com', '', 'other', 'A message from a robot that filled the hidden field.', 'http://spam.example');
+reset role;
+select t.ok((select count(*) from public.contact_messages) = 1, 'contact: only the valid message was stored (refused and trapped ones were not)');
+select t.ok((select name = 'Pat Recruiter' and email = 'pat@example.com' and organization = 'Example Bank' and topic = 'recruiting'
+                and message = 'We would like to meet your members.' and handled_at is null and handled_by is null
+             from public.contact_messages), 'contact: the message is stored trimmed, with a lower-case email, unhandled');
+
+-- One sender: three messages a day, then refused. An older message does not count.
+set role anon;
+select public.send_contact_message('Pat', 'pat@example.com', '', 'other', 'Second message from the same sender.');
+select public.send_contact_message('Pat', 'PAT@example.com', '', 'other', 'Third message from the same sender.');
+select t.throws($$select public.send_contact_message('Pat', 'pat@example.com', '', 'other', 'Fourth message from the same sender.')$$, 'contact: a fourth message in a day from one sender is refused');
+reset role;
+update public.contact_messages set created_at = now() - interval '2 days' where message like 'Second%';
+set role anon;
+select public.send_contact_message('Pat', 'pat@example.com', '', 'other', 'Allowed again once an old message ages out.');
+reset role;
+select t.ok((select count(*) from public.contact_messages) = 4, 'contact: the per-sender limit only counts the last day');
+
+-- Everyone together: 20 an hour.
+insert into public.contact_messages (name, email, topic, message)
+  select 'Filler', 'filler' || g || '@example.com', 'other', 'Filler message number ' || g from generate_series(1, 17) g;
+set role anon;
+select t.throws($$select public.send_contact_message('New', 'new@example.com', '', 'other', 'One more than the hourly limit allows.')$$, 'contact: the hourly limit refuses the 21st message');
+reset role;
+update public.contact_messages set created_at = now() - interval '3 hours';
+set role anon;
+select public.send_contact_message('New', 'new@example.com', '', 'other', 'Accepted once the hour has passed.');
+reset role;
+select t.ok((select count(*) from public.contact_messages) = 22, 'contact: the hourly limit only counts the last hour');
+
+-- At most 500 messages waiting for the board.
+insert into public.contact_messages (name, email, topic, message, created_at)
+  select 'Old', 'old' || g || '@example.com', 'other', 'Old waiting message ' || g, now() - interval '5 days' from generate_series(1, 478) g;
+set role anon;
+select t.throws($$select public.send_contact_message('Late', 'late@example.com', '', 'other', 'The inbox already holds five hundred.')$$, 'contact: a full inbox refuses new messages');
+reset role;
+delete from public.contact_messages where name in ('Old', 'Filler');
+select t.ok((select count(*) from public.contact_messages) = 5, 'contact: fixtures cleaned up');
+
+-- A member and an applicant see nothing and can change nothing.
+select t.claims('alice@umich.edu', :'alice');
+set role authenticated;
+select t.ok(t.count('select * from public.contact_messages') = 0, 'member cannot read contact messages');
+select t.ok(t.affected('delete from public.contact_messages') = 0, 'member cannot delete contact messages');
+select t.throws($$update public.contact_messages set message = 'changed by a member'$$, 'member cannot update contact messages');
+select t.throws($$insert into public.contact_messages (name, email, topic, message) values ('x', 'x@example.com', 'other', 'direct insert attempt')$$, 'member cannot insert a contact message directly');
+select t.throws(format('select public.set_contact_handled(%L, true)', (select id from public.contact_messages limit 1)), 'member cannot mark a message handled');
+reset role;
+select t.claims('eve@umich.edu', :'eve');
+set role authenticated;
+select t.ok(t.count('select * from public.contact_messages') = 0, 'applicant cannot read contact messages');
+select t.ok(public.contact_form_ready(), 'a signed-in user can also ask whether the contact form is ready');
+reset role;
+-- A token that claims the admin's address but did not come from Google is nobody.
+select t.claims('boss@umich.edu', :'boss', 'email');
+set role authenticated;
+select t.ok(t.count('select * from public.contact_messages') = 0, 'email-provider token cannot read contact messages');
+reset role;
+select t.ok((select count(*) from public.contact_messages) = 5, 'contact: nothing was deleted by non-admins');
+
+-- The board reads, marks handled, reopens and deletes.
+create table t.msg as select id from public.contact_messages where message like 'We would like%';
+grant select on t.msg to public;
+select t.claims('boss@umich.edu', :'boss');
+set role authenticated;
+select t.ok(t.count('select * from public.contact_messages') = 5, 'admin can read contact messages');
+select t.throws($$update public.contact_messages set message = 'changed by an admin'$$, 'admin cannot edit a message');
+select public.set_contact_handled((select id from t.msg), true);
+select t.ok((select handled_at is not null and handled_by = 'boss@umich.edu' from public.contact_messages where id = (select id from t.msg)), 'admin can mark a message handled, and it records who did');
+select public.set_contact_handled((select id from t.msg), false);
+select t.ok((select handled_at is null and handled_by is null from public.contact_messages where id = (select id from t.msg)), 'admin can reopen a message');
+select t.throws($$select public.set_contact_handled('00000000-0000-0000-0000-000000000000', true)$$, 'marking a message that does not exist fails');
+select t.ok(t.affected(format('delete from public.contact_messages where id = %L', (select id from t.msg))) = 1, 'admin can delete a message');
+select t.ok(t.count('select * from public.contact_messages') = 4, 'the deleted message is gone');
+reset role;
+
 \echo
 select 'ALL PASSED: ' || count(*) || ' assertions' as result from t.results;

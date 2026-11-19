@@ -2,6 +2,8 @@
 // Downloads every published headshot into public/headshots/<profile_id>.webp so the public site never
 // needs Supabase at view time. A failed REST fetch stops the build; a failed image only logs a warning
 // (that person gets the initials avatar).
+// It also asks the database whether the contact form is installed (supabase/03_contact.sql) and writes the
+// answer to .cache/contact.json. The site shows the Contact page and its links only when the answer is yes.
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { loadEnv } from 'vite';
 
@@ -12,12 +14,31 @@ rmSync(dir, { recursive: true, force: true });
 rmSync(manifestPath, { force: true });
 mkdirSync('.cache', { recursive: true });
 writeFileSync(manifestPath, '{}');
+// Sample builds always have the contact form (it runs in demo mode there). Otherwise: off until the database says yes.
+const contactPath = '.cache/contact.json';
+writeFileSync(contactPath, JSON.stringify({ ready: process.env.SAMPLE_DATA === '1' }));
 
 const base = (process.env.PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
 const key = process.env.PUBLIC_SUPABASE_ANON_KEY || '';
 if (process.env.SAMPLE_DATA === '1' || !base || !key) process.exit(0);
 
-const res = await fetch(`${base}/rest/v1/public_profiles?select=profile_id,headshot_path`, { headers: key.startsWith('eyJ') ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key } });
+const headers = key.startsWith('eyJ') ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key };
+
+// 404 means the function does not exist yet, so the form stays off. Any other failure stops the build,
+// so a database hiccup can never make a working Contact page disappear from the live site.
+const probe = await fetch(`${base}/rest/v1/rpc/contact_form_ready`, { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: '{}' });
+if (probe.ok) {
+  const ready = (await probe.json()) === true;
+  writeFileSync(contactPath, JSON.stringify({ ready }));
+  console.log(`prebuild: contact form ${ready ? 'is installed' : 'did not answer yes'}`);
+} else if (probe.status === 404) {
+  console.log('prebuild: contact form not installed (run supabase/03_contact.sql to switch it on)');
+} else {
+  console.error(`prebuild: contact_form_ready returned HTTP ${probe.status}`);
+  process.exit(1);
+}
+
+const res = await fetch(`${base}/rest/v1/public_profiles?select=profile_id,headshot_path`, { headers });
 if (!res.ok) { console.error(`prebuild: public_profiles returned HTTP ${res.status}`); process.exit(1); }
 const rows = await res.json();
 const manifest = {};

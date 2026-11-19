@@ -3,8 +3,9 @@ import Logo from './Logo.astro';
 import { url } from '../lib/url';
 import { getNav } from '../lib/nav';
 import { club } from '../data/club';
+import { contactReady } from '../lib/contact';
 const nav = await getNav();
-const links = [...nav, { label: 'Résumé and LinkedIn guide', path: 'members/resume-guide/' }, { label: 'Privacy', path: 'privacy/' }];
+const links = [...nav, ...(contactReady() ? [{ label: 'Contact', path: 'contact/' }] : []), { label: 'Privacy', path: 'privacy/' }];
 const socials = [
   { label: 'LinkedIn', href: club.social.linkedin },
   { label: 'Instagram', href: club.social.instagram },

@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { url } from '../lib/url';
+import { contactReady } from '../lib/contact';
+
+// The Contact page exists only once the contact form is installed in the database (supabase/03_contact.sql).
+// Until then this list is empty, so no page is built and nothing links to it.
+export function getStaticPaths() {
+  return contactReady() ? [{ params: { contact: 'contact' } }] : [];
+}
+const crumbs = [{ name: 'Contact', path: 'contact/' }];
+---
+<Base
+  path="contact/"
+  crumbs={crumbs}
+  title="Contact | Michigan Sustainable Investments"
+  description="Contact Michigan Sustainable Investments (MSI), the sustainable investing club at the University of Michigan."
+>
+  <PageHead title="Contact" lead="Send the MSI board a message." crumbs={crumbs} />
+  <section class="section-tight portal-section">
+    <div class="wrap portal">
+      <noscript><p class="notice">This form needs JavaScript to send a message. Turn JavaScript on and reload the page.</p></noscript>
+      <form id="contact-form" class="form" novalidate>
+        <div id="contact-summary" class="notice error" role="alert" tabindex="-1" hidden></div>
+        <div class="field">
+          <label for="c-name">Name</label>
+          <input type="text" id="c-name" name="name" autocomplete="name" maxlength="120" required aria-describedby="c-name-err" />
+          <span class="err" id="c-name-err"></span>
+        </div>
+        <div class="field">
+          <label for="c-email">Email</label>
+          <input type="email" id="c-email" name="email" autocomplete="email" maxlength="254" required aria-describedby="c-email-err" />
+          <span class="err" id="c-email-err"></span>
+        </div>
+        <div class="field">
+          <label for="c-organization">Firm, school or organization</label>
+          <input type="text" id="c-organization" name="organization" autocomplete="organization" maxlength="160" aria-describedby="c-organization-hint c-organization-err" />
+          <span class="hint" id="c-organization-hint">Optional.</span>
+          <span class="err" id="c-organization-err"></span>
+        </div>
+        <div class="field">
+          <label for="c-topic">What is this about?</label>
+          <select id="c-topic" name="topic" required aria-describedby="c-topic-err">
+            <option value="" selected>Choose one</option>
+            <option value="recruiting">Recruiting or meeting members</option>
+            <option value="speaking">Speaking at MSI</option>
+            <option value="joining">Joining MSI</option>
+            <option value="other">Something else</option>
+          </select>
+          <span class="err" id="c-topic-err"></span>
+        </div>
+        <div class="field">
+          <label for="c-message">Message</label>
+          <textarea id="c-message" name="message" rows="7" maxlength="4000" required aria-describedby="c-message-hint c-message-err"></textarea>
+          <span class="hint" id="c-message-hint">10 to 4,000 characters.</span>
+          <span class="err" id="c-message-err"></span>
+        </div>
+        <div class="trap" aria-hidden="true">
+          <label for="c-trap">Leave this field empty</label>
+          <input type="text" id="c-trap" name="trap" tabindex="-1" autocomplete="off" />
+        </div>
+        <div>
+          <button class="btn btn-dark" type="submit" id="contact-send">Send message</button>
+          <p class="small contact-note">Your message goes to the MSI board. See <a href={url('privacy/')}>Privacy</a>.</p>
+        </div>
+      </form>
+      <div id="contact-done" class="notice ok" role="status" tabindex="-1" hidden>
+        <p>Your message has been sent to the MSI board.</p>
+        <p><a href={url('')}>Back to the home page</a></p>
+      </div>
+    </div>
+  </section>
+  <script>import '../scripts/contact';</script>
+</Base>

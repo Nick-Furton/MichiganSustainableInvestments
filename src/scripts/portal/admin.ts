@@ -35,6 +35,7 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
     }
     if (tab.id === 'tab-review') loadReview();
     if (tab.id === 'tab-board') loadBoard();
+    if (tab.id === 'tab-messages') loadMessages();
   };
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => select(t));
@@ -149,6 +150,56 @@ import { getApi, showState, $, $$, setMessage, errText, toCsv, download, UMICH }
       }
     });
   }
+
+  // Contact messages. Written by strangers, so every field is shown as plain text (never as HTML).
+  const TOPICS: Record<string, string> = { recruiting: 'Recruiting or meeting members', speaking: 'Speaking at MSI', joining: 'Joining MSI', other: 'Something else' };
+  const when = (iso: string) => new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  const SIMPLE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const messagesTab = $('#tab-messages')!;
+  const setWaiting = (n: number) => { messagesTab.textContent = n ? `Messages (${n})` : 'Messages'; };
+  async function loadMessages() {
+    await run(async () => {
+      const box = $('#messages-list')!;
+      box.replaceChildren();
+      const items = await api!.listMessages();
+      if (items === null) {
+        setWaiting(0);
+        box.append(el('p', { className: 'notice' }, 'The contact form is not switched on. Run supabase/03_contact.sql in Supabase, then republish the site.'));
+        return;
+      }
+      setWaiting(items.filter((m) => !m.handled_at).length);
+      if (!items.length) { box.append(el('p', { className: 'notice' }, 'No messages.')); return; }
+      if (items.some((m) => m.handled_at)) {
+        const all = el('button', { type: 'button', className: 'btn btn-outline btn-sm', textContent: 'Delete all handled' });
+        all.addEventListener('click', () => {
+          if (!confirm('Delete all handled messages? This cannot be undone.')) return;
+          run(async () => { await api!.deleteHandledMessages(); await loadMessages(); setMessage(msg, 'Handled messages deleted.', 'ok'); });
+        });
+        box.append(el('p', { className: 'btn-row' }, all));
+      }
+      for (const m of items) {
+        const handled = !!m.handled_at;
+        const who = SIMPLE_EMAIL.test(m.email) ? el('a', { href: `mailto:${encodeURIComponent(m.email)}` }, m.email) : m.email;
+        const toggle = el('button', { type: 'button', className: 'btn btn-dark btn-sm', textContent: handled ? 'Reopen' : 'Mark handled' });
+        toggle.setAttribute('aria-label', `${handled ? 'Reopen' : 'Mark handled'}: message from ${m.name}`);
+        toggle.addEventListener('click', () => run(async () => { await api!.setMessageHandled(m.id, !handled); await loadMessages(); }));
+        const del = el('button', { type: 'button', className: 'btn btn-danger btn-sm', textContent: 'Delete' });
+        del.setAttribute('aria-label', `Delete message from ${m.name}`);
+        del.addEventListener('click', () => {
+          if (!confirm('Delete this message? This cannot be undone.')) return;
+          run(async () => { await api!.deleteMessage(m.id); await loadMessages(); setMessage(msg, 'Message deleted.', 'ok'); });
+        });
+        box.append(el('article', { className: 'review-card' },
+          el('div', {}, el('h3', {}, m.name), el('div', { className: 'small contact-meta' }, who, ...(m.organization ? [` · ${m.organization}`] : []))),
+          el('div', { className: 'small' }, `${TOPICS[m.topic] ?? m.topic} · ${when(m.created_at)}`),
+          el('p', { className: 'message-text' }, m.message),
+          el('div', {}, el('span', { className: handled ? 'tag' : 'tag tag-new' }, handled ? 'Handled' : 'New'), ...(handled ? [el('span', { className: 'small' }, `${m.handled_by ? 'By ' + m.handled_by + ' on ' : ''}${when(m.handled_at!)}`)] : [])),
+          el('div', { className: 'btn-row' }, toggle, del)));
+      }
+    });
+  }
+  // Show how many messages are waiting before the tab is opened. A missing table or a failure here stays quiet.
+  api.listMessages().then((items) => setWaiting(items ? items.filter((m) => !m.handled_at).length : 0)).catch(() => {});
 
   // Export
   const stamp = new Date().toISOString().slice(0, 10);

@@ -2,6 +2,9 @@
 import Base from '../layouts/Base.astro';
 import PageHead from '../components/PageHead.astro';
 import { club } from '../data/club';
+import { url } from '../lib/url';
+import { contactReady } from '../lib/contact';
+const contact = contactReady();
 const crumbs = [{ name: 'Privacy', path: 'privacy/' }];
 ---
 <Base
@@ -25,10 +28,18 @@ const crumbs = [{ name: 'Privacy', path: 'privacy/' }];
       <p>Sign-in uses Google and is limited to basic profile and email.</p>
       <h2>Deletion</h2>
       <p>Members can delete their profile at any time from the profile page. Deleting it removes it from the next site update.</p>
+      {contact && (
+        <>
+          <h2>Contact form</h2>
+          <p>The contact form stores your name, email address, organization (if you give one) and your message. Only the board can read it. The board deletes a message on request.</p>
+        </>
+      )}
       <h2>Contact</h2>
       {club.contactEmail
         ? <p><a href={`mailto:${club.contactEmail}`}>{club.contactEmail}</a></p>
-        : <p>Contact details will be posted here.</p>}
+        : contact
+          ? <p>Use the <a href={url('contact/')}>contact form</a>.</p>
+          : <p>Contact details will be posted here.</p>}
     </div>
   </section>
 </Base>
