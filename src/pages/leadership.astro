@@ -15,6 +15,7 @@ const people = board.map((p) => ({
   name: p.full_name,
   jobTitle: p.board_title,
   memberOf: { '@type': 'Organization', name: club.name, url: abs('') },
+  ...(p.headshot_url ? { image: abs(p.headshot_url) } : {}),
   ...(p.linkedin_url ? { sameAs: [p.linkedin_url] } : {}),
 }));
 ---
@@ -24,9 +25,9 @@ const people = board.map((p) => ({
   noindex={m.profiles.length === 0}
   jsonLd={people}
   title="Leadership | Michigan Sustainable Investments"
-  description="The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan."
+  description="The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan: the students who run the club, with their roles and class years."
 >
-  <PageHead title="Leadership" crumbs={crumbs} />
+  <PageHead title="Leadership" />
   <section class="section-tight">
     <div class="wrap">
       {m.profiles.length === 0 && (

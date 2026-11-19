@@ -15,6 +15,8 @@ export const club = {
   descriptor: 'The sustainable investing club at the University of Michigan.',
   // The university's name. Never add a logo; the club is not an official unit.
   university: 'University of Michigan',
+  // Where the club is. Not shown on the pages; it goes into the machine-readable facts that search engines read.
+  location: { city: 'Ann Arbor', region: 'MI', country: 'US' },
   // Year the club was founded.
   founded: 2019,
   // Name the club was founded under (used in the footer, Program and Join pages).
@@ -25,9 +27,9 @@ export const club = {
   dues: '$25 per semester',
   // Symposium count and the first and last year it was held.
   symposium: { count: 5, firstYear: 2019, lastYear: 2024 },
-  // Firms that have sent symposium speakers (plain text, no logos). Empty list hides the speaker section.
+  // Firms that have sent symposium speakers (plain text, no logos). Empty list hides the speaker sentence.
   speakerFirms: ['Goldman Sachs', 'Pfizer', 'Orrick', 'Impact Engine', 'Total Impact Capital'],
-  // Public contact address of the VP of External. Empty shows "Contact details will be posted here."
+  // Public contact address of the VP of External. Empty hides it.
   contactEmail: '',
   // Social links. Each one appears in the footer only when it has a value (use the full https:// address).
   social: { linkedin: '', instagram: '', x: '' },
@@ -44,6 +46,9 @@ export const club = {
     applyUrl: '',
   },
 };
+
+// Apply is offered only while a cycle is open or has dates. Otherwise the button would lead nowhere.
+export const applyOffered = () => club.application.state === 'open' || club.application.state === 'scheduled';
 
 // The selectivity sentence, or '' while any of the three values is missing.
 export function selectivitySentence() {

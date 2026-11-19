@@ -5,12 +5,15 @@ import hero from '../assets/placeholder/presenting-hero.jpg';
 import { url } from '../lib/url';
 import { getNav } from '../lib/nav';
 import { contactReady } from '../lib/contact';
+import { applyOffered } from '../data/club';
 
 // The home page is one screen: the photo, the name, one line, and links to the four sections.
 // It has no site header or footer and is sized to fit the window without scrolling.
 // Everything else lives on the section pages.
 const nav = await getNav();
-// The second button is Contact us once the contact form is installed; member sign-in then moves to the small print.
+// Buttons are for visitors: Apply while a cycle is open or dated; Contact us once the contact form is installed.
+// With neither, there is no button. Member sign-in is always a link in the small print.
+const apply = applyOffered();
 const contact = contactReady();
 const photoAlt = 'A presenter in a dark suit points to a slide while an audience looks on.';
 ---
@@ -18,7 +21,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
   path=""
   bare
   bodyClass="landing-page"
-  title="Michigan Sustainable Investments (MSI) | University of Michigan"
+  title="Michigan Sustainable Investments | University of Michigan"
   description="Michigan Sustainable Investments (MSI) is the student-run sustainable investing club at the University of Michigan. Founded in 2019. Membership by application."
 >
   <div class="landing">
@@ -31,17 +34,17 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
           <path d="M8 52 L22 22 L33 40 L46 14 L56 34" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M46 13 C46 5 52 1 61 1 C61 10 55 13 46 13 Z" fill="#ffcb05" />
         </svg>
-        <h1>Michigan <span class="hl">Sustainable</span> Investments</h1>
+        <h1>Michigan Sustainable Investments</h1>
         <p class="landing-sub">at the University of Michigan</p>
       </div>
       <div class="landing-body">
         <p class="landing-lead">Welcome to MSI, Michigan's sustainable investing club. Members prepare for careers in investment banking, private equity and asset management.</p>
-        <div class="btn-row">
-          <a class="btn btn-dark" href={url('recruitment/')}>Apply</a>
-          {contact
-            ? <a class="btn btn-outline" href={url('contact/')}>Contact us</a>
-            : <a class="btn btn-outline" href={url('members/')}>Member sign-in</a>}
-        </div>
+        {(apply || contact) && (
+          <div class="btn-row">
+            {apply && <a class="btn btn-dark" href={url('recruitment/')}>Apply</a>}
+            {contact && <a class={apply ? 'btn btn-outline' : 'btn btn-dark'} href={url('contact/')}>Contact us</a>}
+          </div>
+        )}
         <nav class="landing-nav" aria-label="Main">
           <ul>
             {nav.map((i) => (
@@ -55,7 +58,7 @@ const photoAlt = 'A presenter in a dark suit points to a slide while an audience
           </ul>
         </nav>
       </div>
-      <p class="landing-legal">MSI is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice. {contact && <><a href={url('members/')}>Member sign-in</a> · </>}<a href={url('privacy/')}>Privacy</a></p>
+      <p class="landing-legal">MSI is a student organization at the University of Michigan and is not an official unit of the University. Nothing on this site is investment advice. <a href={url('members/')}>Member sign-in</a> · <a href={url('privacy/')}>Privacy</a></p>
     </div>
   </div>
 </Base>

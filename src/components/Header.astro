@@ -2,9 +2,14 @@
 import Logo from './Logo.astro';
 import { url } from '../lib/url';
 import { getNav } from '../lib/nav';
+import { applyOffered } from '../data/club';
+import { contactReady } from '../lib/contact';
 interface Props { current: string }
 const { current } = Astro.props;
 const nav = await getNav();
+// One button for visitors: Apply while a cycle is open or dated, otherwise Contact once the form is installed.
+// Member sign-in is a quiet text link: it matters to members, not to visitors.
+const action = applyOffered() ? { label: 'Apply', path: 'recruitment/' } : contactReady() ? { label: 'Contact', path: 'contact/' } : null;
 ---
 <header class="site-header">
   <div class="wrap header-inner">
@@ -14,8 +19,8 @@ const nav = await getNav();
       <ul class="nav-list">
         {nav.map((i) => <li><a href={url(i.path)} aria-current={current === i.path ? 'page' : undefined}>{i.label}</a></li>)}
       </ul>
-      <a class="btn btn-outline btn-sm nav-cta" href={url('members/')}>Member sign-in</a>
-      <a class="btn btn-dark btn-sm nav-cta" href={url('recruitment/')}>Apply</a>
+      <a class="nav-signin" href={url('members/')} aria-current={current.startsWith('members/') ? 'page' : undefined}>Member sign-in</a>
+      {action && <a class="btn btn-dark btn-sm nav-cta" href={url(action.path)}>{action.label}</a>}
     </nav>
   </div>
 </header>

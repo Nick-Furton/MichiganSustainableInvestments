@@ -66,8 +66,9 @@ for (const r of rows) {
     if (sharp) {
       const meta = await sharp(buf).metadata();
       let full = buf;
-      // A WebP that is already small enough is shipped untouched (no second round of compression).
-      if (type !== 'webp' || (meta.width || 0) > 1200 || meta.width !== meta.height) {
+      // A WebP that is already small enough, in pixels and in bytes, is shipped untouched (no second round of
+      // compression). Anything else is re-encoded; some phones upload small photos that are heavy.
+      if (type !== 'webp' || (meta.width || 0) > 1200 || meta.width !== meta.height || buf.length > 150 * 1024) {
         full = await sharp(buf).rotate().resize({ width: 1200, height: 1200, fit: 'cover', withoutEnlargement: true }).webp({ quality: 90 }).toBuffer();
       }
       writeFileSync(`${dir}/${id}.webp`, full);

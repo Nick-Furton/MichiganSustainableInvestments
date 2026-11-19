@@ -2,10 +2,13 @@ import { club, formatDate } from '../data/club';
 import { firmGroups } from '../data/firms';
 import { abs } from '../lib/url';
 import { contactReady } from '../lib/contact';
+import { loadMembers } from '../lib/members';
 
 // Plain-text summary for AI crawlers, generated from src/data/club.ts.
-export function GET() {
+export async function GET() {
   const a = club.application;
+  // Board members who chose to publish their profile (the same people as on the Leadership page).
+  const board = (await loadMembers()).profiles.filter((p) => p.board_title);
   const lines = [
     `# ${club.name}`,
     '',
@@ -22,12 +25,13 @@ export function GET() {
     '',
     '## Facts',
     `- Founded: ${club.founded}`,
-    `- Formerly: ${club.formerName} `,
+    `- Formerly: ${club.formerName} (renamed ${club.name} in ${club.renamedYear})`,
     ...(club.dues ? [`- Dues: ${club.dues}`] : []),
     `- Symposia held: ${club.symposium.count} (${club.symposium.firstYear} to ${club.symposium.lastYear})`,
     ...(club.speakerFirms.length ? [`- Symposium speaker affiliations: ${club.speakerFirms.join(', ')}`] : []),
     ...(club.contactEmail ? [`- Contact: ${club.contactEmail}`] : []),
     '',
+    ...(board.length ? ['## Leadership', ...board.map((p) => `- ${p.full_name}, ${p.board_title}`), ''] : []),
     '## Firms where alumni have worked',
     ...firmGroups.map((g) => `- ${g.title}: ${g.firms.map((f) => f.name).join(', ')}`),
     '',
