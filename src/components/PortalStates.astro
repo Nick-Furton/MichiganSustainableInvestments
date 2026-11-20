@@ -12,13 +12,9 @@ const { signInHere = false } = Astro.props;
 </div>
 <div data-state="signedout" hidden={!configured}>
   {signInHere ? (
-    <>
-      <p class="notice">Sign in with your University of Michigan Google account to create or update your profile.</p>
-      <p><button class="btn btn-dark" type="button" id="btn-signin">Sign in with Google</button></p>
-      <p class="small">Use your @umich.edu Google account. New members can create a profile right away. The board approves every profile before it appears on the site.</p>
-    </>
+    <p><button class="btn btn-dark" type="button" id="btn-signin">Sign in / Create account</button></p>
   ) : (
-    <p><a class="btn btn-dark" href={url('members/')}>Member sign-in</a></p>
+    <p><a class="btn btn-dark" href={url('members/')}>Sign in / Create account</a></p>
   )}
 </div>
 <div data-state="wrongdomain" hidden>

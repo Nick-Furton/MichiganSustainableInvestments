@@ -1,6 +1,5 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PageHead from '../../components/PageHead.astro';
 import PortalStates from '../../components/PortalStates.astro';
 import { url } from '../../lib/url';
 ---
@@ -11,9 +10,10 @@ import { url } from '../../lib/url';
   title="Member sign-in | Michigan Sustainable Investments"
   description="Sign in to Michigan Sustainable Investments (MSI) with your University of Michigan Google account to create or update your member profile."
 >
-  <PageHead title="Member sign-in" />
-  <section class="section-tight portal-section">
+  <!-- Visitors see one button and nothing else; the heading is for screen readers only. -->
+  <section class="section-tight portal-section signin-only">
     <div class="wrap portal">
+      <h1 class="sr-only">Member sign-in</h1>
       <div id="msg" class="notice" role="alert" hidden></div>
       <PortalStates signInHere />
       <div data-state="ready" hidden>
