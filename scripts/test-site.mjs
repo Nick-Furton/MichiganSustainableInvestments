@@ -248,8 +248,11 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   ok(speakers.length > 0 && speakers.every((f) => count(wwa, f) === 1), name, 'each symposium speaker firm must appear exactly once on Who We Are');
   ok(count(wwa, 'public equities, green bonds, venture capital, microfinance and clean-energy finance') === 1, name, 'the instrument list must appear exactly once on Who We Are');
   ok(count(wwa, 'Speakers and the Symposium') === 1, name, 'Speakers and the Symposium must appear once');
-  const membersHome = visibleText(htmlOf.get(join(dir, 'members/index.html')));
-  ok(count(membersHome, 'Sign in with your University of Michigan Google account to create or update your profile.') === 1, name, 'the sign-in sentence must appear exactly once on the member sign-in page');
+  // The sign-in page shows visitors one button and nothing else: no visible heading, no explainer, no small print.
+  const membersHtml = htmlOf.get(join(dir, 'members/index.html'));
+  const signedOut = (/<div data-state="signedout"[^>]*>([\s\S]*?)<\/div>/.exec(membersHtml) || [, ''])[1];
+  ok(visibleText(signedOut) === 'Sign in / Create account' && count(signedOut, '<button') === 1, name, 'the signed-out sign-in page must be exactly one "Sign in / Create account" button');
+  ok(/<h1 class="sr-only"[^>]*>Member sign-in<\/h1>/.test(membersHtml) && !/class="page-head"/.test(/<main[\s\S]*<\/main>/.exec(membersHtml)[0]), name, 'the sign-in page heading must be screen-reader only');
 
   // Placements: logo wall.
   const plHtml = htmlOf.get(join(dir, 'placements/index.html'));
