@@ -2,13 +2,13 @@ import { club, formatDate } from '../data/club';
 import { firmGroups } from '../data/firms';
 import { abs } from '../lib/url';
 import { contactReady } from '../lib/contact';
-import { loadMembers } from '../lib/members';
+import { loadMembers, boardRoles } from '../lib/members';
 
 // Plain-text summary for AI crawlers, generated from src/data/club.ts.
 export async function GET() {
   const a = club.application;
   // Board members who chose to publish their profile (the same people as on the Leadership page).
-  const board = (await loadMembers()).profiles.filter((p) => p.board_title);
+  const board = boardRoles((await loadMembers()).profiles);
   const lines = [
     `# ${club.name}`,
     '',
@@ -31,7 +31,7 @@ export async function GET() {
     ...(club.speakerFirms.length ? [`- Symposium speaker affiliations: ${club.speakerFirms.join(', ')}`] : []),
     ...(club.contactEmail ? [`- Contact: ${club.contactEmail}`] : []),
     '',
-    ...(board.length ? ['## Leadership', ...board.map((p) => `- ${p.full_name}, ${p.board_title}`), ''] : []),
+    ...(board.length ? ['## Leadership', ...board.map((r) => `- ${r.title}: ${r.people.map((p) => p.full_name).join(', ')}`), ''] : []),
     '## Firms where alumni have worked',
     ...firmGroups.map((g) => `- ${g.title}: ${g.firms.map((f) => f.name).join(', ')}`),
     '',

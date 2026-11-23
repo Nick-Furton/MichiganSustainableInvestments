@@ -42,7 +42,7 @@
       "major": "Sample Major One",
       "linkedin_url": null,
       "headshot_url": null,
-      "board_title": "Vice President of Finance",
+      "board_title": "Co-Vice President of Finance",
       "sort_order": 4
     },
     {
@@ -53,8 +53,8 @@
       "major": "Sample Major Two",
       "linkedin_url": null,
       "headshot_url": null,
-      "board_title": "Vice President of Operations",
-      "sort_order": 5
+      "board_title": "Co-Vice President of Finance",
+      "sort_order": 9
     },
     {
       "profile_id": "sample-6",

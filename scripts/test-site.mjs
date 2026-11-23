@@ -287,7 +287,16 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   const levels = [...ldHtml.replace(/<(script|style)[\s\S]*?<\/\1>/g, '').matchAll(/<h([1-6])[\s>]/g)].map((m) => Number(m[1]));
   ok(levels.every((v, i) => i === 0 ? v === 1 : v <= levels[i - 1] + 1), name, `leadership heading levels skip (${levels.join(',')})`);
   ok(!/Executive board<|MSI is run by its executive board/.test(ldHtml), name, 'old Leadership heading or lead sentence is back');
-  if (hasData) ok(levels.includes(2), name, 'leadership cards need h2 headings');
+  if (hasData) ok(levels.includes(2), name, 'leadership roles need h2 headings');
+  // Leadership: each role is named once. People who share a title sit together under it, and cards do not repeat it.
+  const roleTitles = [...ldHtml.matchAll(/<section class="role role-\d"[^>]*>\s*<h2[^>]*>([^<]+)<\/h2>/g)].map((m) => m[1].trim().toLowerCase());
+  if (hasData) ok(roleTitles.length > 0 && new Set(roleTitles).size === roleTitles.length, name, `each board title must appear once on Leadership (got ${roleTitles.join(' | ')})`);
+  ok(!/person-title/.test(ldHtml), name, 'cards must not repeat the board title (the role label carries it)');
+  if (sample) {
+    const co = ldHtml.match(/<section class="role role-2"[^>]*>\s*<h2[^>]*>Co-Vice President of Finance<\/h2>([\s\S]*?)<\/section>/);
+    ok(!!co && (co[1].match(/<article class="person/g) || []).length === 2 && /Sample Member D[\s\S]*Sample Member E/.test(co[1]), name, 'two people with the same title must share one role block, in order');
+    ok((visibleText(ldHtml).match(/Co-Vice President of Finance/gi) || []).length === 1, name, 'a shared board title must be shown once');
+  }
   const recr = visibleText(htmlOf.get(join(dir, 'recruitment/index.html')));
   ok(!/How do members get listed|Is MSI part of the University/.test(recr), name, 'the recruitment question list must be gone');
   ok(APPLY_OFFERED || recr.includes('Applications are closed. Dates for the next cycle have not been announced.'), name, 'recruitment closed wording');
@@ -320,6 +329,7 @@ function checkVariant(name, dir, { base = '/', sample = false, data = false, con
   ok(!/resume-guide/i.test(llms), name, 'llms.txt mentions the removed guide');
   ok(/renamed/i.test(llms) && llms.includes('2024'), name, 'llms.txt must state the rename year');
   ok(llms.includes('## Leadership') === hasData, name, hasData ? 'llms.txt needs a Leadership list' : 'llms.txt has a Leadership list without published board members');
+  if (sample) ok(llms.includes('- Co-Vice President of Finance: Sample Member D, Sample Member E'), name, 'llms.txt must list a shared title once, with both names');
   ok(/\[Contact\]\(/.test(llms) === contact, name, contact ? 'llms.txt lacks the Contact line' : 'llms.txt has a Contact line although the form is not ready');
   ok(existsSync(join(dir, 'og.png')) && existsSync(join(dir, 'favicon.svg')), name, 'og.png / favicon missing');
 }
