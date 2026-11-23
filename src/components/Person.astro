@@ -21,6 +21,7 @@ const meta = [p.class_year ? `Class of ${p.class_year}` : '', p.major ?? ''].fil
   </div>
   <div class="person-body">
     <Name class="person-name">{p.full_name}</Name>
+    {p.board_title && <p class="person-title">{p.board_title}</p>}
     {meta.map((m) => <p>{m}</p>)}
     {p.linkedin_url && <p><a href={p.linkedin_url} rel="noopener nofollow">LinkedIn<span class="sr"> profile of {p.full_name}</span></a></p>}
   </div>
