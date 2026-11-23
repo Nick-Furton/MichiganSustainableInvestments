@@ -7,9 +7,9 @@ import { club } from '../data/club';
 import { loadMembers, boardRoles } from '../lib/members';
 const m = await loadMembers();
 const crumbs = [{ name: 'Leadership', path: 'leadership/' }];
-// Each role is named once. People who share a title (co-presidents, co-VPs) appear together under it.
-const roles = boardRoles(m.profiles);
-const board = roles.flatMap((r) => r.people);
+// One card per person, each with its own title. People who share a title (two co-presidents, two co-VPs) are kept
+// next to each other, wherever each was placed in the order.
+const board = boardRoles(m.profiles).flatMap((r) => r.people);
 const rest = m.profiles.filter((p) => !(p.board_title && p.board_title.trim()));
 const people = board.map((p) => ({
   '@context': 'https://schema.org',
@@ -38,16 +38,7 @@ const people = board.map((p) => ({
           <a class="arrow-link" href={url('members/')}>Member sign-in →</a>
         </div>
       )}
-      {roles.length > 0 && (
-        <div class="roles">
-          {roles.map((r) => (
-            <section class={`role role-${Math.min(r.people.length, 3)}`}>
-              <h2>{r.title}</h2>
-              <div class="role-people">{r.people.map((p) => <Person p={p} level={3} />)}</div>
-            </section>
-          ))}
-        </div>
-      )}
+      {board.length > 0 && <div class="grid-3">{board.map((p) => <Person p={p} level={2} />)}</div>}
       {rest.length > 0 && (
         <>
           <h2 class="members-title">Members</h2>

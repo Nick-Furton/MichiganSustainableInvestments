@@ -98,8 +98,8 @@ async function load(): Promise<MembersData> {
 export type BoardRole = { title: string; people: PublicProfile[] };
 
 // The board as a list of roles, in display order. Two people with the same title (two co-presidents, say) share
-// one entry, so the title is written once. A role sits where its first holder sits; "Co-VP Finance" typed with
-// different capitals or spacing still counts as the same title.
+// one entry, which keeps them next to each other on the Leadership page and on one line in llms.txt. A role sits
+// where its first holder sits; "Co-VP Finance" typed with different capitals or spacing still counts as the same title.
 export function boardRoles(profiles: PublicProfile[]): BoardRole[] {
   const same = (t: string) => t.trim().replace(/\s+/g, ' ').toLowerCase();
   const board = profiles
