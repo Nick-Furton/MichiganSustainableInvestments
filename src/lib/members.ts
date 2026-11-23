@@ -95,5 +95,27 @@ async function load(): Promise<MembersData> {
   return { source: 'supabase', profiles, placements };
 }
 
+export type BoardRole = { title: string; people: PublicProfile[] };
+
+// The board as a list of roles, in display order. Two people with the same title (two co-presidents, say) share
+// one entry, so the title is written once. A role sits where its first holder sits; "Co-VP Finance" typed with
+// different capitals or spacing still counts as the same title.
+export function boardRoles(profiles: PublicProfile[]): BoardRole[] {
+  const same = (t: string) => t.trim().replace(/\s+/g, ' ').toLowerCase();
+  const board = profiles
+    .filter((p) => p.board_title && p.board_title.trim())
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => (a.p.sort_order ?? 999) - (b.p.sort_order ?? 999) || a.i - b.i)
+    .map((x) => x.p);
+  const roles: BoardRole[] = [];
+  for (const p of board) {
+    const title = p.board_title!.trim().replace(/\s+/g, ' ');
+    const role = roles.find((r) => same(r.title) === same(title));
+    if (role) role.people.push(p);
+    else roles.push({ title, people: [p] });
+  }
+  return roles;
+}
+
 export const isSample = () => process.env.SAMPLE_DATA === '1';
 export const portalConfigured = () => !!(process.env.PUBLIC_SUPABASE_URL && process.env.PUBLIC_SUPABASE_ANON_KEY);

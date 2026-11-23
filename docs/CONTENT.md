@@ -86,7 +86,7 @@ Absorbs the old Program page.
 - Title: `Leadership | Michigan Sustainable Investments`
 - Description: `The executive board of Michigan Sustainable Investments (MSI) at the University of Michigan: the students who run the club, with their roles and class years.`
 - H1: `Leadership`
-- No lead sentence and no `Executive board` heading. Approved profiles that have a board title come first, in display order, each as a card with the person's name as an H2 (so the headings run H1 then H2, with no skipped level). Then H2 `Members`: approved profiles without a title, only when there are any. Cards: headshot, name, board title, class year, major, LinkedIn link. Board titles and order are set by an administrator, never by the member.
+- No lead sentence and no `Executive board` heading. The board comes first, one block per role in display order: the title as a small label (an H2) with the person's card beneath it. **A title is written once.** Two people with the same title (two co-presidents, two co-VPs) share one block and sit side by side under the one label, wherever each was placed in the order; the block sits where its first holder sits. Titles that differ only in capitals or spacing count as the same. Then H2 `Members`: approved profiles without a title, only when there are any. Cards: headshot, name (H3), class year, major, LinkedIn link. The title is not repeated on the card. Board titles and order are set by an administrator, never by the member. `llms.txt` lists the board the same way (`- Title: Name, Name`).
 - Empty state (no approved profiles): `Board profiles are being added. Members can sign in to add theirs.` + link `Member sign-in →`. While empty the page is `noindex` and out of the sitemap.
 
 ## Recruitment (`/recruitment/`)
